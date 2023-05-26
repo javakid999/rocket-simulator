@@ -1,22 +1,25 @@
 import pygame, math
 
-class Square:
-    def __init__(self, position, size, mass, static=False):
+class Box:
+    def __init__(self, position, size, mass, id, static=0):
+        self.id = id
         self.size = size
+
+        # 0 = normal, 1 = fixed position, 2 = fixed
         self.static = static
 
         self.mass = mass
         self.position = position
         self.linear_velocity = [0,0]
-        self.elasticity = 0.2
+        self.linear_acceleration = [0,0]
+        self.elasticity = 1
         self.angle = 0
         self.angular_velocity = 0
-
+        self.angular_acceleration = 0
         self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
 
-    def update(self, other, force):
+    def update(self, scene, forces):
         dt = 1/60
-        forces = [force]
 
         sum_forces = [0,0]
         for force in forces:
@@ -28,49 +31,134 @@ class Square:
         torque = 0
         for force in forces:
             cm = (force[0][0] - self.position[0], force[0][1] - self.position[1])
-            torque += cm[0]*force[1][1]-force[1][0]*cm[1]
+            if force[0][0] != 0 or force[0][1] != 0:
+                torque += cm[0]*force[1][1]-force[1][0]*cm[1]
         angular_acceleration = torque/self.moment_of_inertia
 
+        # "collide"
 
-        intersect = self.do_polygons_intersect(other)
-        if intersect[0]:
-            #elasticity coefficient
-            e = (self.elasticity + other.elasticity) / 2
-            
-            #poi and velocity
-            poi = [(self.position[0]+other.position[0])/2,(self.position[1]+other.position[1])/2]
-            r_a = [poi[0]-self.position[0],poi[1]-self.position[1]]
-            r_b = [poi[0]-other.position[0],poi[1]-other.position[1]]
-            d_a = math.hypot(poi[0]-self.position[0],poi[1]-self.position[1])
-            d_b = math.hypot(poi[0]-other.position[0],poi[1]-other.position[1])
-            v_a = [d_a * self.angular_velocity * -math.sin(self.angle) + self.linear_velocity[0], d_a * self.angular_velocity * -math.cos(self.angle) + self.linear_velocity[1]]
-            v_b = [d_b * other.angular_velocity * -math.sin(other.angle) + other.linear_velocity[0], d_b * other.angular_velocity * -math.cos(other.angle) + other.linear_velocity[1]]
-            r_v = [v_a[0] - v_b[0], v_a[1] - v_b[1]]
+        self.linear_accerlation = linear_acceleration
+        self.angular_acceleration = angular_acceleration
+        if self.static == 0:
+            self.linear_velocity[0] += linear_acceleration[0]*dt
+            self.linear_velocity[1] += (linear_acceleration[1]+9.8)*dt
+            self.position[0] += self.linear_velocity[0]*dt
+            self.position[1] += self.linear_velocity[1]*dt
 
-            #calculate j
-            n = intersect[1]
-            j_num = -n[0] * (1+e) * r_v[0]+ -n[1] * (1+e) * r_v[1]
-            j_denom = n[0]*n[0]*(1/self.mass+1/other.mass)+n[1]*n[1]*(1/self.mass+1/other.mass)+(n[0]*r_a[0]+n[1]*r_a[1])**2/self.moment_of_inertia+(n[0]*r_b[0]+n[1]*r_b[1])**2/other.moment_of_inertia
-            if j_denom == 0: 
-                j = 0
-            else:
-                j = j_num/j_denom
-            #move them
-            self.linear_velocity[0] += n[0]*j/self.mass
-            self.linear_velocity[1] += n[1]*j/self.mass
-            self.angular_velocity += (r_a[0]*j*n[0]+r_a[1]*j*n[1])/self.moment_of_inertia
+        if self.static != 2:
+            self.angular_velocity += angular_acceleration*dt
+            self.angle += self.angular_velocity*dt
 
-            other.linear_velocity[0] += -n[0]*j/other.mass
-            other.linear_velocity[1] += -n[1]*j/other.mass
-            other.angular_velocity += (r_b[0]*j*-n[0]+r_b[1]*j*-n[1])/other.moment_of_inertia
+    def find_contact_points(self, other):
+        contact1 = [0,0]
+        contact2 = [0,0]
+        count = 0
+        dist = 100000
 
-        self.position[0] += self.linear_velocity[0]*dt + 1/2*linear_acceleration[0]*dt*dt
-        self.position[1] += self.linear_velocity[1]*dt + 1/2*(linear_acceleration[1]+0.0)*dt*dt
-        self.linear_velocity[0] += linear_acceleration[0]*dt
-        self.linear_velocity[1] += linear_acceleration[1]*dt
+        points_self = self.rotate_points(self.angle)
+        points_other = other.rotate_points(other.angle)
+        for i in range(len(points_self)):
+            point = points_self[i]
+            for j in range(len(points_other)):
+                va = points_other[j]
+                vb = points_other[(j+1)%len(points_other)]
 
-        self.angle += self.angular_velocity*dt + 1/2*angular_acceleration*dt*dt
-        self.angular_velocity += angular_acceleration*dt
+                d = self.point_segment_distance(point, va, vb)
+                distance_squared = d[0]
+                cp = d[1]
+                if abs(distance_squared - dist) < 0.01:
+                    if not(abs(cp[0]-contact1[0]) < 0.01 and abs(cp[1]-contact1[1]) < 0.01 and abs(cp[0]-contact2[0]) < 0.01 and abs(cp[1]-contact2[1]) < 0.01):
+                        contact2 = [*cp]
+                        count = 2
+                elif (distance_squared < dist):
+                    dist = distance_squared
+                    count = 1
+                    contact1 = cp
+        for i in range(len(points_other)):
+            point = points_other[i]
+            for j in range(len(points_self)):
+                va = points_self[j]
+                vb = points_self[(j+1)%len(points_self)]
+
+                d = self.point_segment_distance(point, va, vb)
+                distance_squared = d[0]
+                cp = d[1]
+                if abs(distance_squared - dist) < 0.01:
+                    if not(abs(cp[0]-contact1[0]) < 0.01 and abs(cp[1]-contact1[1]) < 0.01 and abs(cp[0]-contact2[0]) < 0.01 and abs(cp[1]-contact2[1]) < 0.01):
+                        contact2 = [*cp]
+                        count = 2
+                elif (distance_squared < dist):
+                    dist = distance_squared
+                    count = 1
+                    contact1 = cp
+
+        return [count, contact1, contact2]
+
+    @staticmethod
+    def point_segment_distance(point,line_start,line_end):
+        ab = [line_end[0] - line_start[0], line_end[1] - line_start[1]];
+        ap = [point[0] - line_start[0], point[1] - line_start[1]];
+
+        proj = ap[0] * ab[0] + ap[1] * ab[1]
+        abLenSq = ab[0]**2+ab[1]**2
+        d = proj / abLenSq
+
+        if d <= 0:
+            cp = line_start
+        elif d >= 1:
+            cp = line_end
+        else:
+            cp = [line_start[0] + ab[0] * d, line_start[1] + ab[1] * d]
+
+        distance_squared = (point[0]-cp[0])**2+(point[1]-cp[1])**2
+        return [distance_squared, cp]
+
+    @staticmethod
+    def get_line_intersection(x0,y0,x1,y1,x2,y2,x3,y3):
+        s1_x = x1 - x0     
+        s1_y = y1 - y0
+        s2_x = x3 - x2     
+        s2_y = y3 - y2
+        d = (-s2_x * s1_y + s1_x * s2_y)
+        s = (-s1_y * (x0 - x2) + s1_x * (y0 - y2)) / d
+        t = ( s2_x * (y0 - y2) - s2_y * (x0 - x2)) / d
+
+        if (s >= 0 and s <= 1 and t >= 0 and t <= 1):
+            x = x0 + (t * s1_x);
+            y = y0 + (t * s1_y);
+            return True, [x,y]
+        return False, [0,0]
+
+    def resolve_collision(self, other, intersect, poi):
+        #elasticity coefficient
+        e = (self.elasticity + other.elasticity) / 2
+        
+        #velocity
+        r_a = [poi[0]-self.position[0],poi[1]-self.position[1]]
+        r_b = [poi[0]-other.position[0],poi[1]-other.position[1]]
+        d_a = math.hypot(poi[0]-self.position[0],poi[1]-self.position[1])
+        d_b = math.hypot(poi[0]-other.position[0],poi[1]-other.position[1])
+        v_a = [d_a * self.angular_velocity * -math.sin(self.angle) + self.linear_velocity[0], d_a * self.angular_velocity * -math.cos(self.angle) + self.linear_velocity[1]]
+        v_b = [d_b * other.angular_velocity * -math.sin(other.angle) + other.linear_velocity[0], d_b * other.angular_velocity * -math.cos(other.angle) + other.linear_velocity[1]]
+        r_v = [v_a[0] - v_b[0], v_a[1] - v_b[1]]
+
+        #calculate j
+        n = intersect[1]
+        j_num = -n[0] * (1+e) * r_v[0]+ -n[1] * (1+e) * r_v[1]
+        j_denom = n[0]*n[0]*(1/self.mass+1/other.mass)+n[1]*n[1]*(1/self.mass+1/other.mass)+(n[0]*r_a[0]+n[1]*r_a[1])**2/self.moment_of_inertia+(n[0]*r_b[0]+n[1]*r_b[1])**2/other.moment_of_inertia
+
+        if j_denom == 0: 
+            j = 0
+        else:
+            j = j_num/j_denom
+        #move them
+        self.linear_velocity[0] += n[0]*j/self.mass
+        self.linear_velocity[1] += n[1]*j/self.mass
+        self.angular_velocity += (r_a[0]*j*n[0]+r_a[1]*j*n[1])/self.moment_of_inertia
+
+        other.linear_velocity[0] += -n[0]*j/other.mass
+        other.linear_velocity[1] += -n[1]*j/other.mass
+        other.angular_velocity += (r_b[0]*j*-n[0]+r_b[1]*j*-n[1])/other.moment_of_inertia
 
     def render(self, screen):
         surface = pygame.Surface(self.size, pygame.SRCALPHA)
