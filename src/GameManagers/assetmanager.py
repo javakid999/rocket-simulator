@@ -5,7 +5,7 @@ import pygame
 class AssetManager:
     def __init__(self):
         self.assets = {}
-        self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1]]
+        self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1], ['./src/Assets/Images/title.png',(600,100)]]
 
     def loadAssets(self):
         for asset in self.assetList:

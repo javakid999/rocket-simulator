@@ -1,5 +1,30 @@
 import pygame, math
 
+from perlin import PerlinNoise
+
+class Planet:
+    def __init__(self, radius, features, mass, sea_level):
+        self.radius = radius
+        self.features = features
+        self.mass = mass
+        self.sea_level = sea_level
+        self.points = []
+    def generate_points(self, seed):
+        noise = PerlinNoise(seed)
+        num_points = int(self.radius * math.pi)
+        values = noise.generate_values(3, num_points)
+        for i in range(num_points):
+            if values > num_points-100 or values < 100:
+                self.points.append(0)
+            else:
+                self.points.append(values[i])
+    
+    def find_points():
+        pass
+
+    def render(self, rect):
+        pass
+
 class Box:
     def __init__(self, position, size, mass, id, static=0):
         self.id = id
@@ -7,6 +32,9 @@ class Box:
 
         # 0 = normal, 1 = fixed position, 2 = fixed
         self.static = static
+
+        self.angular_friction = 0.1
+        self.kinetic_friction = 0.3
 
         self.mass = mass
         self.position = position
@@ -18,7 +46,7 @@ class Box:
         self.angular_acceleration = 0
         self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
 
-    def update(self, scene, forces):
+    def update(self, scene, forces, platform):
         dt = 1/60
 
         sum_forces = [0,0]
@@ -30,12 +58,17 @@ class Box:
         #fake cross product axby-bxay
         torque = 0
         for force in forces:
-            cm = (force[0][0] - self.position[0], force[0][1] - self.position[1])
             if force[0][0] != 0 or force[0][1] != 0:
-                torque += cm[0]*force[1][1]-force[1][0]*cm[1]
-        angular_acceleration = torque/self.moment_of_inertia
+                torque += (force[0][0]*force[1][1]-force[1][0]*force[0][1])
+        angular_acceleration = -torque/self.moment_of_inertia
 
         # "collide"
+        if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(platform):
+            self.position[1] = platform.top-(self.size[1]/2)
+            self.linear_velocity[1] = 0
+            self.angular_velocity = 0
+            self.angular_acceleration = 0
+            linear_acceleration[1] = 0
 
         self.linear_accerlation = linear_acceleration
         self.angular_acceleration = angular_acceleration
@@ -167,6 +200,7 @@ class Box:
         screen.blit(rotated_image, (self.position[0]-rotated_image.get_width()/2,self.position[1]-rotated_image.get_height()/2))
         for point in self.rotate_points(self.angle):
             pygame.draw.rect(screen, (0,0,255), (point[0]-2,point[1]-2,4,4))
+        pygame.draw.line(screen, (255,255,0), self.position, (self.position[0]+self.linear_acceleration[0]*5, self.position[1]+self.linear_acceleration[1]*5))
 
     def rotate_points(self, angle):
         angle_rads = angle*math.pi/180

@@ -1,3 +1,4 @@
+import math
 import pygame
 from particle import Particle, ParticleSystem
 from statemachine import StateMachine
@@ -25,6 +26,9 @@ class MainMenuScreen:
 
         self.particles.render(self.surface)
         self.particles.update()
+
+        title_surface = pygame.transform.rotate(pygame.transform.scale_by(assets['title'], 1), 20*math.sin(self.timeActive/10))
+        self.surface.blit(title_surface, (320, 150-title_surface.get_height()/2))
 
         for item in self.ui:
             pass
