@@ -15,7 +15,7 @@ class Game:
         self.timeOnScreen = 0
         self.world = World()
         self.clock = pygame.time.Clock()
-        self.mode = 1
+        self.mode = 0
         self.renderer = Renderer()
         self.inputManager = InputManager()
         self.assetManager = AssetManager()
@@ -23,12 +23,14 @@ class Game:
         
     def start(self):
         pygame.init()
-        settings = json.load(open('./src/Saves/settings.json'))
+        settings = json.load(open('../src/Saves/settings.json'))
         self.inputManager.loadInput()
         self.assetManager.loadAssets()
         self.soundManager.loadSounds(settings)
         self.renderer.initScreens(self)
         
+        self.soundManager.playMusic('cipher', 3000)
+
         self.update()
 
     def loadNewGame(self):

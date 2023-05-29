@@ -5,7 +5,9 @@ import pygame
 class AssetManager:
     def __init__(self):
         self.assets = {}
-        self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1], ['./src/Assets/Images/title.png',(600,100)]]
+        self.assetList = [['../src/Assets/Images/cheese.png',(50,50)], ['../src/Assets/Images/background.jpg',-1], ['../src/Assets/Images/title.png',(600,100)], ['../src/Assets/Images/dirt.png', (32,32)], ['../src/Assets/Images/water.jpg', (32,32)],
+                          ['../src/Assets/Images/button.png', -1], ['../src/Assets/Images/button_highlight.png', -1], ['../src/Assets/Images/text_credits.png', -1], ['../src/Assets/Images/text_start.png', -1], ['../src/Assets/Images/text_options.png', -1]
+                          ]
 
     def loadAssets(self):
         for asset in self.assetList:
@@ -123,3 +125,12 @@ class AssetManager:
         surface.set_colorkey((0,0,0))
         pygame.image.save(surface, 'spritesheet.png')
         return True
+    
+    def generateTiledTexture(self, asset, size):
+        surface = pygame.Surface(size)
+        image = self.assets[asset]
+        repeat = [math.ceil(size[0]/image.get_width())+2,math.ceil(size[1]/image.get_height())+1]
+        for i in range(repeat[0]):
+            for j in range(repeat[1]):
+                surface.blit(image, ((image.get_width()-1)*i,(image.get_height()-1)*j))
+        return surface

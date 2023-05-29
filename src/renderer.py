@@ -7,7 +7,7 @@ class Renderer:
     def __init__(self):
         self.screen = pygame.Surface((1280, 720))
         self.window = pygame.display.set_mode((1280,720))
-        pygame.display.set_caption('I Aimed for the Moon & Hit Cheese')
+        pygame.display.set_caption('I Shot for the Moon & Hit Cheese')
         self.screen.fill((0,0,0))
         self.global_ui = []
         self.screens = {}
@@ -29,9 +29,10 @@ class Renderer:
             item.render(self.screen, gamemode, inputManager.mousePos, inputManager.globalMouseOffset)
 
     def initUI(self, game):
+        #this is where you would put all of the things in the global ui
         pass
 
     def initScreens(self, game):
         pygame.display.set_icon(game.assetManager.assets['cheese'])
         self.screens['mainmenu'] = MainMenuScreen(game.assetManager.assets)
-        self.screens['launch'] = RocketLaunchScreen()
+        self.screens['launch'] = RocketLaunchScreen(game.assetManager)

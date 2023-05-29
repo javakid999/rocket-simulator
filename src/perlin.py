@@ -1,13 +1,12 @@
 import math
 
 class PerlinNoise:
-    def __init__(self, seed):
-        self.values = []
-        self.seed = seed
-
-    def generate_values(self, depth, num):
+    @staticmethod
+    def generate_values(seed, depth, num):
+        values = []
         for i in range(num):
-            self.values.append(self.fbm([0,i/20], self.seed, 0.5, 0.5, depth))
+            values.append(PerlinNoise.fbm([0,i/10], seed, 0.5, 1, depth))
+        return values
 
     @staticmethod
     def sserp(a, b, x):

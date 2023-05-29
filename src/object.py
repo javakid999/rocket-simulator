@@ -1,29 +1,94 @@
 import pygame, math
+from GameManagers.assetmanager import AssetManager
 
 from perlin import PerlinNoise
 
 class Planet:
-    def __init__(self, radius, features, mass, sea_level):
+    def __init__(self, position, radius, features, textures, mass, sea_level):
+        self.position = position
         self.radius = radius
         self.features = features
+        self.textures = textures
         self.mass = mass
         self.sea_level = sea_level
         self.points = []
+        self.quality = 10
+
+        self.mask_surface = pygame.Surface((1280,720))
+        self.mask_water = pygame.Surface((1280,720))
     def generate_points(self, seed):
-        noise = PerlinNoise(seed)
-        num_points = int(self.radius * math.pi)
-        values = noise.generate_values(3, num_points)
+        num_points = int(self.radius * math.pi / self.quality)
+        values = PerlinNoise.generate_values(seed, 5, num_points)
         for i in range(num_points):
-            if values > num_points-100 or values < 100:
-                self.points.append(0)
+            if i > 9395 and i < 9454:
+                self.points.append(0.1)
             else:
                 self.points.append(values[i])
-    
-    def find_points():
-        pass
 
-    def render(self, rect):
-        pass
+    def intersection(self, rect):
+            half_width = rect.width / 2
+            half_height = rect.height / 2
+
+            # Calculate the center of the rectangle
+            rect_x = rect.center[0]
+            rect_y = rect.center[1]
+
+            # Calculate the closest point on the rectangle to the circle
+            closest_x = max(rect_x - half_width, min(self.position[0], rect_x + half_width))
+            closest_y = max(rect_y - half_height, min(self.position[1], rect_y + half_height))
+
+            # Calculate the distance between the closest point and the circle center
+            distance = math.sqrt((closest_x - self.position[0]) ** 2 + (closest_y - self.position[1]) ** 2)
+
+            # Check if the distance is less than or equal to the circle radius
+            if distance <= self.radius:
+                return True
+            else:
+                return False
+
+    def render(self, screen, rect, world, time_active):
+        self.mask_surface.fill((0,0,0))
+        self.mask_water.fill((0,0,0))
+        if self.intersection(rect):
+            
+            expanded_rect = pygame.Rect(rect.left-20, rect.top-20, rect.width+40, rect.height+40)
+            points_land = []
+            points_water = []
+            for i in range(70):
+                index = i-35+world.rocket.planet_point_index
+                angle = 2*math.pi*((index)/len(self.points))
+                position = [self.position[0]-rect.left+(self.radius+100*self.points[index])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[index])*math.sin(angle)]
+                position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
+                if expanded_rect.collidepoint(self.position[0]+self.radius*math.cos(angle),self.position[1]+self.radius*math.sin(angle)):
+                    points_land.append([*position])
+                    points_water.append([*position_water])
+            if len(points_land) > 2:
+                corners = [rect.topright, rect.bottomright, rect.topleft, rect.bottomleft]
+                for i in range(len(corners)):
+                    dist_to_corner = (corners[i][0] - self.position[0])**2 + (corners[i][1] - self.position[1])**2
+                    if dist_to_corner < self.radius**2:
+                        points_land.append([corners[i][0]-rect.left, corners[i][1]-rect.top])
+                        points_water.append([corners[i][0]-rect.left, corners[i][1]-rect.top])
+
+                pygame.draw.polygon(self.mask_water, (0,128,255), points_water)
+                pygame.draw.polygon(self.mask_surface, (255,255,255), points_land)
+
+                masked_texture_surface = self.textures['land'].copy()
+                masked_texture_water = self.textures['water'].copy()
+
+                masked_texture_surface.scroll(-rect.left%32-32, -rect.top%32-32)
+                masked_texture_water.scroll((-rect.left+int(time_active/5))%32-32, -rect.top%32-32)
+
+                masked_texture_water.blit(self.mask_water, (0,0), None, pygame.BLEND_RGBA_MULT)
+                masked_texture_water.set_colorkey((0,0,0))
+
+                masked_texture_surface.blit(self.mask_surface, (0,0), None, pygame.BLEND_RGBA_MULT)
+                masked_texture_surface.set_colorkey((0,0,0))
+
+                screen.blit(masked_texture_water, (0,0))
+                screen.blit(masked_texture_surface, (0,0))
+        else:
+            return
 
 class Box:
     def __init__(self, position, size, mass, id, static=0):
@@ -46,7 +111,9 @@ class Box:
         self.angular_acceleration = 0
         self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
 
-    def update(self, scene, forces, platform):
+        self.planet_point_index = 0
+
+    def update(self, world, forces):
         dt = 1/60
 
         sum_forces = [0,0]
@@ -63,8 +130,24 @@ class Box:
         angular_acceleration = -torque/self.moment_of_inertia
 
         # "collide"
-        if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(platform):
-            self.position[1] = platform.top-(self.size[1]/2)
+        for planet in world.planets:
+            self.test_points = []
+            rocket_angle = math.atan2(self.position[1]-planet.position[1], self.position[0]-planet.position[0])
+            self.planet_point_index = int(rocket_angle/(math.pi*2)*len(planet.points))%len(planet.points)
+            for i in range(6):
+                rocket_angle = math.atan2(self.position[1]-planet.position[1], self.position[0]-planet.position[0])
+                planet_point_index = int(rocket_angle/(math.pi*2)*len(planet.points)+i-3)%len(planet.points)
+                point_angle = 2*math.pi*planet_point_index/len(planet.points)
+                for point in self.rotate_points(self.angle):
+                    dist_to_center = math.hypot(point[0]-planet.position[0], point[1]-planet.position[1])
+                    surface_radius = planet.points[planet_point_index]*100+planet.radius
+                    if dist_to_center < surface_radius:
+                        self.position[0] += math.cos(point_angle)*(surface_radius-dist_to_center)
+                        self.position[1] += math.sin(point_angle)*(surface_radius-dist_to_center)
+
+
+        if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(world.platform):
+            self.position[1] = world.platform.top-(self.size[1]/2)
             self.linear_velocity[1] = 0
             self.angular_velocity = 0
             self.angular_acceleration = 0
@@ -74,7 +157,7 @@ class Box:
         self.angular_acceleration = angular_acceleration
         if self.static == 0:
             self.linear_velocity[0] += linear_acceleration[0]*dt
-            self.linear_velocity[1] += (linear_acceleration[1]+9.8)*dt
+            self.linear_velocity[1] += (linear_acceleration[1])*dt
             self.position[0] += self.linear_velocity[0]*dt
             self.position[1] += self.linear_velocity[1]*dt
 
@@ -82,125 +165,14 @@ class Box:
             self.angular_velocity += angular_acceleration*dt
             self.angle += self.angular_velocity*dt
 
-    def find_contact_points(self, other):
-        contact1 = [0,0]
-        contact2 = [0,0]
-        count = 0
-        dist = 100000
-
-        points_self = self.rotate_points(self.angle)
-        points_other = other.rotate_points(other.angle)
-        for i in range(len(points_self)):
-            point = points_self[i]
-            for j in range(len(points_other)):
-                va = points_other[j]
-                vb = points_other[(j+1)%len(points_other)]
-
-                d = self.point_segment_distance(point, va, vb)
-                distance_squared = d[0]
-                cp = d[1]
-                if abs(distance_squared - dist) < 0.01:
-                    if not(abs(cp[0]-contact1[0]) < 0.01 and abs(cp[1]-contact1[1]) < 0.01 and abs(cp[0]-contact2[0]) < 0.01 and abs(cp[1]-contact2[1]) < 0.01):
-                        contact2 = [*cp]
-                        count = 2
-                elif (distance_squared < dist):
-                    dist = distance_squared
-                    count = 1
-                    contact1 = cp
-        for i in range(len(points_other)):
-            point = points_other[i]
-            for j in range(len(points_self)):
-                va = points_self[j]
-                vb = points_self[(j+1)%len(points_self)]
-
-                d = self.point_segment_distance(point, va, vb)
-                distance_squared = d[0]
-                cp = d[1]
-                if abs(distance_squared - dist) < 0.01:
-                    if not(abs(cp[0]-contact1[0]) < 0.01 and abs(cp[1]-contact1[1]) < 0.01 and abs(cp[0]-contact2[0]) < 0.01 and abs(cp[1]-contact2[1]) < 0.01):
-                        contact2 = [*cp]
-                        count = 2
-                elif (distance_squared < dist):
-                    dist = distance_squared
-                    count = 1
-                    contact1 = cp
-
-        return [count, contact1, contact2]
-
-    @staticmethod
-    def point_segment_distance(point,line_start,line_end):
-        ab = [line_end[0] - line_start[0], line_end[1] - line_start[1]];
-        ap = [point[0] - line_start[0], point[1] - line_start[1]];
-
-        proj = ap[0] * ab[0] + ap[1] * ab[1]
-        abLenSq = ab[0]**2+ab[1]**2
-        d = proj / abLenSq
-
-        if d <= 0:
-            cp = line_start
-        elif d >= 1:
-            cp = line_end
-        else:
-            cp = [line_start[0] + ab[0] * d, line_start[1] + ab[1] * d]
-
-        distance_squared = (point[0]-cp[0])**2+(point[1]-cp[1])**2
-        return [distance_squared, cp]
-
-    @staticmethod
-    def get_line_intersection(x0,y0,x1,y1,x2,y2,x3,y3):
-        s1_x = x1 - x0     
-        s1_y = y1 - y0
-        s2_x = x3 - x2     
-        s2_y = y3 - y2
-        d = (-s2_x * s1_y + s1_x * s2_y)
-        s = (-s1_y * (x0 - x2) + s1_x * (y0 - y2)) / d
-        t = ( s2_x * (y0 - y2) - s2_y * (x0 - x2)) / d
-
-        if (s >= 0 and s <= 1 and t >= 0 and t <= 1):
-            x = x0 + (t * s1_x);
-            y = y0 + (t * s1_y);
-            return True, [x,y]
-        return False, [0,0]
-
-    def resolve_collision(self, other, intersect, poi):
-        #elasticity coefficient
-        e = (self.elasticity + other.elasticity) / 2
-        
-        #velocity
-        r_a = [poi[0]-self.position[0],poi[1]-self.position[1]]
-        r_b = [poi[0]-other.position[0],poi[1]-other.position[1]]
-        d_a = math.hypot(poi[0]-self.position[0],poi[1]-self.position[1])
-        d_b = math.hypot(poi[0]-other.position[0],poi[1]-other.position[1])
-        v_a = [d_a * self.angular_velocity * -math.sin(self.angle) + self.linear_velocity[0], d_a * self.angular_velocity * -math.cos(self.angle) + self.linear_velocity[1]]
-        v_b = [d_b * other.angular_velocity * -math.sin(other.angle) + other.linear_velocity[0], d_b * other.angular_velocity * -math.cos(other.angle) + other.linear_velocity[1]]
-        r_v = [v_a[0] - v_b[0], v_a[1] - v_b[1]]
-
-        #calculate j
-        n = intersect[1]
-        j_num = -n[0] * (1+e) * r_v[0]+ -n[1] * (1+e) * r_v[1]
-        j_denom = n[0]*n[0]*(1/self.mass+1/other.mass)+n[1]*n[1]*(1/self.mass+1/other.mass)+(n[0]*r_a[0]+n[1]*r_a[1])**2/self.moment_of_inertia+(n[0]*r_b[0]+n[1]*r_b[1])**2/other.moment_of_inertia
-
-        if j_denom == 0: 
-            j = 0
-        else:
-            j = j_num/j_denom
-        #move them
-        self.linear_velocity[0] += n[0]*j/self.mass
-        self.linear_velocity[1] += n[1]*j/self.mass
-        self.angular_velocity += (r_a[0]*j*n[0]+r_a[1]*j*n[1])/self.moment_of_inertia
-
-        other.linear_velocity[0] += -n[0]*j/other.mass
-        other.linear_velocity[1] += -n[1]*j/other.mass
-        other.angular_velocity += (r_b[0]*j*-n[0]+r_b[1]*j*-n[1])/other.moment_of_inertia
-
-    def render(self, screen):
+    def render(self, screen, camera):
         surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        pygame.draw.rect(surface, (255,0,0), (0, 0, self.size[0], self.size[1]))
+        pygame.draw.rect(surface, (255,0,0), (0, 0, self.size[0], self.size[1]))  
         rotated_image = pygame.transform.rotate(surface, -self.angle)
-        screen.blit(rotated_image, (self.position[0]-rotated_image.get_width()/2,self.position[1]-rotated_image.get_height()/2))
+        screen.blit(rotated_image, (self.position[0]-camera.left-rotated_image.get_width()/2,self.position[1]-camera.top-rotated_image.get_height()/2))
         for point in self.rotate_points(self.angle):
-            pygame.draw.rect(screen, (0,0,255), (point[0]-2,point[1]-2,4,4))
-        pygame.draw.line(screen, (255,255,0), self.position, (self.position[0]+self.linear_acceleration[0]*5, self.position[1]+self.linear_acceleration[1]*5))
+            pygame.draw.rect(screen, (0,0,255), (point[0]-2-camera.left,point[1]-2-camera.top,4,4))
+        pygame.draw.line(screen, (0,255,0), (self.position[0]-camera.left, self.position[1]-camera.top), (self.position[0]-camera.left-50*math.sin(self.angle*math.pi/180), self.position[1]-camera.top+50*math.cos(self.angle*math.pi/180)))
 
     def rotate_points(self, angle):
         angle_rads = angle*math.pi/180

@@ -31,4 +31,4 @@ class InputManager:
 
     def click_event(self, game):
         if game.mode == 0:
-            pass
+            game.renderer.screens['mainmenu'].update_ui(self.mouse_pos, game)

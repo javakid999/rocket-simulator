@@ -1,5 +1,6 @@
 import math
 import pygame
+from button import Button
 from particle import Particle, ParticleSystem
 from statemachine import StateMachine
 
@@ -10,7 +11,11 @@ class MainMenuScreen:
         self.menuState.addState('startgame', ['title'])
         self.menuState.addState('options', ['title'])
 
-        self.ui = []
+        self.ui = [
+            Button('start', (490, 300), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_start']}),
+            Button('options', (490, 410), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_options']}),
+            Button('credits', (490, 520), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_credits']}),
+        ]
 
         base_particle = Particle(assets['cheese'])
         base_particle.position = [640,720]
@@ -31,12 +36,18 @@ class MainMenuScreen:
         self.surface.blit(title_surface, (320, 150-title_surface.get_height()/2))
 
         for item in self.ui:
-            pass
+            item.render(self.surface, pos)
 
         screen.blit(self.surface, (0,0))
         self.timeActive += 1
 
-    def updateUI(self, pos, game):
+    def update_ui(self, pos, game):
         for item in self.ui:
-            if item.update(-1, pos):
-                pass
+            if item.update(pos):
+                if item.id == 'start':
+                    game.mode = 1
+                    game.soundManager.playMusic('free_bird', 2000)
+                if item.id == 'options':
+                    pass
+                if item.id == 'credits':
+                    pass
