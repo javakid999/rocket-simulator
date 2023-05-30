@@ -8,9 +8,9 @@ class AudioManager:
         pygame.mixer.init()
 
     def loadSounds(self, settings):
-        paths = os.listdir('../src/Assets/Music/')
+        paths = os.listdir('./src/Assets/Music/')
         for path in paths:
-            self.music[path[0:len(path)-4]] = '../src/Assets/Music/'+path
+            self.music[path[0:len(path)-4]] = './src/Assets/Music/'+path
         pygame.mixer.music.set_volume(settings['volume'])
         
     def playMusic(self, name, fade):

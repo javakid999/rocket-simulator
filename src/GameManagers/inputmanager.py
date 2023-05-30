@@ -8,6 +8,11 @@ class InputManager:
         self.click_pos = [0,0]
         self.global_mouse_offset = [0,0]
         self.keys = []
+        self.keys = pygame.key.get_pressed()
+        self.key_press = {
+            'z': False,
+            'm': False
+        }
 
     def loadInput(self):
         pass
@@ -27,7 +32,19 @@ class InputManager:
         self.mouse_state = pygame.mouse.get_pressed()
 
     def update_keys(self):
+        keys_prev = {'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m]}
         self.keys = pygame.key.get_pressed()
+
+        if self.keys[pygame.K_z] and not keys_prev['z']:
+            self.key_press['z'] = True
+        else:
+            self.key_press['z'] = False
+
+        if self.keys[pygame.K_m] and not keys_prev['m']:
+            self.key_press['m'] = True
+        else:
+            self.key_press['m'] = False
+        
 
     def click_event(self, game):
         if game.mode == 0:

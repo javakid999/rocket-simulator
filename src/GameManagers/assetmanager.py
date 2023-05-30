@@ -5,8 +5,8 @@ import pygame
 class AssetManager:
     def __init__(self):
         self.assets = {}
-        self.assetList = [['../src/Assets/Images/cheese.png',(50,50)], ['../src/Assets/Images/background.jpg',-1], ['../src/Assets/Images/title.png',(600,100)], ['../src/Assets/Images/dirt.png', (32,32)], ['../src/Assets/Images/water.jpg', (32,32)],
-                          ['../src/Assets/Images/button.png', -1], ['../src/Assets/Images/button_highlight.png', -1], ['../src/Assets/Images/text_credits.png', -1], ['../src/Assets/Images/text_start.png', -1], ['../src/Assets/Images/text_options.png', -1]
+        self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1], ['./src/Assets/Images/title.png',(600,100)], ['./src/Assets/Images/dirt.png', (32,32)], ['./src/Assets/Images/water.jpg', (32,32)],
+                          ['./src/Assets/Images/button.png', -1], ['./src/Assets/Images/button_highlight.png', -1], ['./src/Assets/Images/text_credits.png', -1], ['./src/Assets/Images/text_start.png', -1], ['./src/Assets/Images/text_options.png', -1]
                           ]
 
     def loadAssets(self):

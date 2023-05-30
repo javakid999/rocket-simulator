@@ -89,6 +89,11 @@ class Planet:
                 screen.blit(masked_texture_surface, (0,0))
         else:
             return
+    
+    def render_map(self, screen, pos, zoom):
+        quality = 20
+        points = []
+        pygame.draw.circle(screen, (128,128,255), (640+(self.position[0]-pos[0])*1.1**zoom,360+(self.position[1]-pos[1])*1.1**zoom), self.radius*1.1**zoom)
 
 class Box:
     def __init__(self, position, size, mass, id, static=0):

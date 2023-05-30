@@ -4,7 +4,7 @@ from particle import Particle, ParticleSystem
 from statemachine import StateMachine
 from world import World
 
-class RocketLaunchScreen:
+class MapScreen:
     def __init__(self):
         self.ui = []
 
@@ -14,7 +14,14 @@ class RocketLaunchScreen:
     def render(self, screen, assets, inputManager, world, game):
         self.surface.fill((0,0,0))
 
-        world.render(self.surface, self.timeActive)
+        world.render_map(self.surface, inputManager.mouse_pos, inputManager.global_mouse_offset, inputManager.click_pos)
+
+        if inputManager.keys[pygame.K_q]:
+            world.zoom -= 0.1
+        if inputManager.keys[pygame.K_e]:
+            world.zoom += 0.1
+        if inputManager.key_press['m']:
+            game.mode = 1
 
         forces = []
         for planet in world.planets:
@@ -22,18 +29,7 @@ class RocketLaunchScreen:
             vector_planet = [(planet.position[0]-world.rocket.position[0])/dist, (planet.position[1]-world.rocket.position[1])/dist]
             gravitational_force = 6.67*10**-10*planet.mass*world.rocket.mass/(dist*dist)
             forces.append([[0,0], ([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])])
-        if inputManager.keys[pygame.K_w]:
-            forces.append([(0,0),(30*math.sin(world.rocket.angle*math.pi/180),-30*math.cos(world.rocket.angle*math.pi/180))])
-        if inputManager.keys[pygame.K_a]:
-            forces.append([(0,30),(-1000,0)])
-            forces.append([(0,-30),(1000,0)])
-        if inputManager.keys[pygame.K_d]:
-            forces.append([(0,30),(1000,0)])
-            forces.append([(0,-30),(-1000,0)])
         world.rocket.update(world, forces)
-
-        if inputManager.key_press['m']:
-            game.mode = 2
 
         for item in self.ui:
             pass

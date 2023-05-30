@@ -23,7 +23,7 @@ class Game:
         
     def start(self):
         pygame.init()
-        settings = json.load(open('../src/Saves/settings.json'))
+        settings = json.load(open('./src/Saves/settings.json'))
         self.inputManager.loadInput()
         self.assetManager.loadAssets()
         self.soundManager.loadSounds(settings)
@@ -31,15 +31,20 @@ class Game:
         
         self.soundManager.playMusic('cipher', 3000)
 
+        self.init_world()
+
         self.update()
-
-    def loadNewGame(self):
-        pass
+    
+    def init_world(self):
+        self.world = World()
+        self.planet_texture = self.assetManager.generateTiledTexture('dirt', (1312,752))
+        self.water_texture = self.assetManager.generateTiledTexture('water', (1312,752))
+        self.world.add_planet([700,637300], 637000, [], {'land': self.planet_texture, 'water': self.water_texture}, 5.97*10**21, 0.08)
         
-    def saveGame(self, file):
+    def save_game(self, file):
         pass
 
-    def loadSavedGame(self):
+    def load_saved_game(self):
         pass
        
     def update(self):
