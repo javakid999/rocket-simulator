@@ -25,11 +25,11 @@ class World:
         pygame.draw.rect(screen, (128,128,128), (self.platform.left-self.camera.left,self.platform.top-self.camera.top,self.platform.width,self.platform.height))
         self.rocket.render(screen, self.camera)
 
-    def render_map(self, screen, mouse_pos, global_mouse_offset, click_pos):
+    def render_map(self, screen, offset):
         for planet in self.planets:
-            planet.render_map(screen, self.rocket.position, self.zoom)
+            planet.render_map(screen, self.rocket.position, self.zoom, offset)
 
         rocket_surface = pygame.Surface((20,20), pygame.SRCALPHA)
         pygame.draw.rect(rocket_surface, (200,200,200), (0,0,20,20))
-        pygame.transform.rotate(rocket_surface, -self.rocket.angle)
-        screen.blit(rocket_surface, (630,350))
+        rotated_surface = pygame.transform.rotate(rocket_surface, -self.rocket.angle)
+        screen.blit(rotated_surface, (640-rotated_surface.get_width()/2+offset[0],360-rotated_surface.get_height()/2+offset[1]))

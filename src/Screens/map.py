@@ -9,12 +9,18 @@ class MapScreen:
         self.ui = []
 
         self.surface = pygame.Surface((1280,720))
+        self.offset = [0,0]
         self.timeActive = 0
 
     def render(self, screen, assets, inputManager, world, game):
         self.surface.fill((0,0,0))
 
-        world.render_map(self.surface, inputManager.mouse_pos, inputManager.global_mouse_offset, inputManager.click_pos)
+        if (inputManager.click_pos[0] != 0 and inputManager.click_pos[1] != 0):
+            self.offset = (inputManager.mouse_pos[0] - inputManager.click_pos[0] + inputManager.global_mouse_offset[0], inputManager.mouse_pos[1] - inputManager.click_pos[1] + inputManager.global_mouse_offset[1])
+        else:
+            self.offset = (inputManager.global_mouse_offset[0],inputManager.global_mouse_offset[1])
+
+        world.render_map(self.surface, self.offset)
 
         if inputManager.keys[pygame.K_q]:
             world.zoom -= 0.1

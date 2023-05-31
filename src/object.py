@@ -20,7 +20,7 @@ class Planet:
         num_points = int(self.radius * math.pi / self.quality)
         values = PerlinNoise.generate_values(seed, 5, num_points)
         for i in range(num_points):
-            if i > 9395 and i < 9454:
+            if i > 150063 and i < 150115:
                 self.points.append(0.1)
             else:
                 self.points.append(values[i])
@@ -90,10 +90,10 @@ class Planet:
         else:
             return
     
-    def render_map(self, screen, pos, zoom):
+    def render_map(self, screen, pos, zoom, offset):
         quality = 20
         points = []
-        pygame.draw.circle(screen, (128,128,255), (640+(self.position[0]-pos[0])*1.1**zoom,360+(self.position[1]-pos[1])*1.1**zoom), self.radius*1.1**zoom)
+        pygame.draw.circle(screen, (128,128,255), (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), self.radius*1.1**zoom)
 
 class Box:
     def __init__(self, position, size, mass, id, static=0):

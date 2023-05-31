@@ -29,9 +29,9 @@ class Game:
         self.soundManager.loadSounds(settings)
         self.renderer.initScreens(self)
         
-        self.soundManager.playMusic('cipher', 3000)
-
         self.init_world()
+
+        self.soundManager.playMusic('cipher', 3000)
 
         self.update()
     
