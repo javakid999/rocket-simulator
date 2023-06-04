@@ -1,5 +1,5 @@
 import pygame, math
-from object import Box
+from box import Box
 from particle import Particle, ParticleSystem
 from statemachine import StateMachine
 from world import World
@@ -29,13 +29,7 @@ class MapScreen:
         if inputManager.key_press['m']:
             game.mode = 1
 
-        forces = []
-        for planet in world.planets:
-            dist = math.hypot(world.rocket.position[0]-planet.position[0], world.rocket.position[1]-planet.position[1])
-            vector_planet = [(planet.position[0]-world.rocket.position[0])/dist, (planet.position[1]-world.rocket.position[1])/dist]
-            gravitational_force = 6.67*10**-10*planet.mass*world.rocket.mass/(dist*dist)
-            forces.append([[0,0], ([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])])
-        world.rocket.update(world, forces)
+        world.update([])
 
         for item in self.ui:
             pass

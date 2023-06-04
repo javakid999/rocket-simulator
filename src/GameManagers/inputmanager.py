@@ -32,7 +32,10 @@ class InputManager:
         self.mouse_state = pygame.mouse.get_pressed()
 
     def update_keys(self):
-        keys_prev = {'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m]}
+        keys_prev = {
+            'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m],
+            '+': self.keys[pygame.K_PLUS], '-': self.keys[pygame.K_MINUS]
+        }
         self.keys = pygame.key.get_pressed()
 
         if self.keys[pygame.K_z] and not keys_prev['z']:
@@ -44,6 +47,16 @@ class InputManager:
             self.key_press['m'] = True
         else:
             self.key_press['m'] = False
+
+        if self.keys[pygame.K_PLUS] and not keys_prev['+']:
+            self.key_press['+'] = True
+        else:
+            self.key_press['+'] = False
+
+        if self.keys[pygame.K_MINUS] and not keys_prev['-']:
+            self.key_press['-'] = True
+        else:
+            self.key_press['-'] = False
         
 
     def click_event(self, game):
