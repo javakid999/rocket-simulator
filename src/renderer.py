@@ -1,7 +1,9 @@
 import pygame
+from Screens.intro import IntroScreen
 
 from Screens.main_menu import MainMenuScreen
 from Screens.map import MapScreen
+from Screens.rocket_build import BuildScreen
 from Screens.rocket_launch import RocketLaunchScreen
 
 class Renderer:
@@ -24,6 +26,10 @@ class Renderer:
             self.screens['launch'].render(self.screen, game.assetManager.assets, game.inputManager, game.world, game)
         elif game.mode == 2:
             self.screens['map'].render(self.screen, game.assetManager.assets, game.inputManager, game.world, game)
+        elif game.mode == 3:
+            self.screens['build'].render(self.screen, game.assetManager.assets, game.inputManager, game.world, game)
+        elif game.mode == 4:
+            self.screens['intro'].render(self.screen, game.assetManager.assets, game.inputManager.mouse_pos, game.inputManager.global_mouse_offset)
 
         self.window.blit(pygame.transform.scale(self.screen, (self.window.get_width(), self.window.get_height())), (0,0))
 
@@ -47,5 +53,7 @@ class Renderer:
     def initScreens(self, game):
         pygame.display.set_icon(game.assetManager.assets['cheese'])
         self.screens['mainmenu'] = MainMenuScreen(game.assetManager.assets)
+        self.screens['intro'] = IntroScreen(game.assetManager.assets)
         self.screens['launch'] = RocketLaunchScreen()
         self.screens['map'] = MapScreen()
+        self.screens['build'] = BuildScreen()

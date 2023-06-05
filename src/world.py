@@ -70,7 +70,6 @@ class World:
         rocket_velocity = [*self.rocket.linear_velocity]
         points = []
         rocket_points = []
-        dt = 150
         path_length = 200
 
         rocket_points.append([640+(self.rocket.position[0]-pos[0])*1.1**zoom+offset[0], 360+(self.rocket.position[1]-pos[1])*1.1**zoom+offset[1]])
@@ -79,9 +78,10 @@ class World:
             velocities.append([*self.planets[i].linear_velocity])
             points.append([])
 
+        #update planets
         for i in range(path_length):
             dt = 150
-            #update planets
+            
             for j in range(len(self.planets)):
                 forces = []
                 if self.planets[j].static: continue
@@ -104,10 +104,14 @@ class World:
 
                 points[j].append([640+(positions[j][0]-pos[0])*1.1**zoom+offset[0], 360+(positions[j][1]-pos[1])*1.1**zoom+offset[1]])
 
+        #update rocket
+            #todo: fixing the stupid trails because idk how to land on the moon
+
         for i in range(path_length):
-            dt = max(math.hypot(*rocket_velocity)/70,2)
+            dt = max(self.get_altitude()/10000,2)
+
             forces = []
-            for planet in self.planets:
+            for planet in positions:
                 dist = math.hypot(rocket_position[0]-planet.position[0], rocket_position[1]-planet.position[1])
                 vector_planet = [(planet.position[0]-rocket_position[0])/dist, (planet.position[1]-rocket_position[1])/dist]
                 gravitational_force = 6.67*10**-10*planet.mass*self.rocket.mass/(dist*dist)

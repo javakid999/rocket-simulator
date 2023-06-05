@@ -45,7 +45,7 @@ class MainMenuScreen:
         for item in self.ui:
             if item.update(pos):
                 if item.id == 'start':
-                    game.mode = 1
+                    game.mode = 4
                     game.soundManager.playMusic('free_bird', 2000)
                 if item.id == 'options':
                     pass

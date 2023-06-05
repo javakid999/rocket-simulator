@@ -6,8 +6,9 @@ class AssetManager:
     def __init__(self):
         self.assets = {}
         self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1], ['./src/Assets/Images/title.png',(600,100)], ['./src/Assets/Images/dirt.png', (32,32)], ['./src/Assets/Images/water.jpg', (32,32)],
-                          ['./src/Assets/Images/button.png', -1], ['./src/Assets/Images/button_highlight.png', -1], ['./src/Assets/Images/text_credits.png', -1], ['./src/Assets/Images/text_start.png', -1], ['./src/Assets/Images/text_options.png', -1],
-                          ['./src/Assets/Images/cheese_water.jpg', (16,16)], ['./src/Assets/Images/moon.jpg', (16,16)]
+                          ['./src/Assets/Images/button.png', -1], ['./src/Assets/Images/button_highlight.png', -1], ['./src/Assets/Images/text_continue.png', -1], ['./src/Assets/Images/text_credits.png', -1], ['./src/Assets/Images/text_start.png', -1], ['./src/Assets/Images/text_options.png', -1],
+                          ['./src/Assets/Images/cheese_water.jpg', (16,16)], ['./src/Assets/Images/moon.jpg', (16,16)], ['./src/Assets/Images/cutscene_1.png', (640,640)], ['./src/Assets/Images/cutscene_2.png', (640,640)], ['./src/Assets/Images/cutscene_3.png', (640,640)], 
+                          ['./src/Assets/Images/cutscene_4.png', (640,640)], ['./src/Assets/Images/cutscene_5.jpg', (640,640)], ['./src/Assets/Images/cutscene_6.jpg', (640,640)], 
                           ]
 
     def loadAssets(self):
