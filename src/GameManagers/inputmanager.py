@@ -62,7 +62,7 @@ class InputManager:
     def click_event(self, game):
         if game.mode == 0:
             game.renderer.screens['mainmenu'].update_ui(self.mouse_pos, game)
-        if game.mode == 3:
+        elif game.mode == 3:
             game.renderer.screens['build'].update_ui(self.mouse_pos, game)
-        if game.mode == 4:
+        elif game.mode == 4:
             game.renderer.screens['intro'].update_ui(self.mouse_pos, game)

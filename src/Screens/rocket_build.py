@@ -5,7 +5,7 @@ from grid import Grid
 class BuildScreen:
     def __init__(self):
         self.ui = []
-        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40)]
+        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40)]
 
         self.grid = Grid()
         self.surface = pygame.Surface((1280,720))
@@ -25,10 +25,11 @@ class BuildScreen:
             for j in range(2):
                 pygame.draw.rect(self.surface, (200,200,200), (j*60+15, i*60+200, 50, 50))
 
-        pygame.draw.rect(self.surface, (255,0,0), self.buttons[0])
-        pygame.draw.rect(self.surface, (255,255,0), self.buttons[1])
-        pygame.draw.rect(self.surface, (0,255,0), self.buttons[2])
-        pygame.draw.rect(self.surface, (0,255,255), self.buttons[3])
+        pygame.draw.rect(self.surface, (0,0,0), self.buttons[0])
+        pygame.draw.rect(self.surface, (255,0,0), self.buttons[1])
+        pygame.draw.rect(self.surface, (255,255,0), self.buttons[2])
+        pygame.draw.rect(self.surface, (0,255,0), self.buttons[3])
+        pygame.draw.rect(self.surface, (0,255,255), self.buttons[4])
 
         for item in self.ui:
             pass
@@ -45,6 +46,11 @@ class BuildScreen:
             self.grid.selected_type = 2
         if self.buttons[3].collidepoint(pos):
             self.grid.selected_type = 3
+        if self.buttons[4].collidepoint(pos):
+            self.grid.selected_type = 4
+
+        if pygame.Rect(140,0,1000,720).collidepoint(pos):
+            self.grid.place(self.offset, pos, self.grid.selected_type)
 
         for item in self.ui:
             if item.update(-1, pos):

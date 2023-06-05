@@ -25,3 +25,6 @@ class Grid:
             part.render()
 
         screen.blit(surface, (140,0))
+    
+    def place(self, offset, pos, type):
+        position = (math.floor((pos[0]-140)/50)*50,math.floor((pos[0]-140)/50)*50)
