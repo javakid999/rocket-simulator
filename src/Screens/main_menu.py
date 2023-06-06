@@ -16,6 +16,7 @@ class MainMenuScreen:
             Button('options', (490, 410), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_options']}),
             Button('credits', (490, 520), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_credits']}),
             Button('back', (490, 600), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_back']}),
+            Button('fullscreen', (200, 300), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_fullscreen']}),
             Slider('volume', (500, 520), (400,20), {'ball': assets['slider_ball'], 'empty': assets['slider_empty'], 'full': assets['slider_full']}, settings['volume']),
         ]
 
@@ -42,7 +43,7 @@ class MainMenuScreen:
                 if item.id in ['start', 'options', 'credits']:
                     item.render(self.surface, pos)
             if self.menuState.activeState == 'options':
-                if item.id in ['volume', 'back']:
+                if item.id in ['volume', 'back', 'fullscreen']:
                     item.render(self.surface, pos)
                     self.surface.blit(pygame.transform.scale(assets['text_volume'], (300,100)), (200, 460))
 
@@ -65,3 +66,5 @@ class MainMenuScreen:
                         self.menuState.to('title')
                     if item.id == 'volume':
                         game.soundManager.setVolume(item.value)
+                    if item.id == 'fullscreen':
+                        pygame.display.toggle_fullscreen()

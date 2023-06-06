@@ -48,7 +48,7 @@ class World:
         altitude = self.get_altitude(self.planets[0])
         for planet in self.planets:
             if altitude < planet.atmosphere_size and self.in_planet_atmosphere(planet):
-                atmosphere_color = planet.atmosphere_color.lerp(pygame.Color(0,0,0), altitude/planet.atmosphere_size)
+                atmosphere_color = planet.atmosphere_color.lerp(pygame.Color(0,0,0), max(min(altitude/planet.atmosphere_size,1),0))
         screen.fill(atmosphere_color)
 
         self.camera.x = self.rocket.position[0] - self.camera.width/2

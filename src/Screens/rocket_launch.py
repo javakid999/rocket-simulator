@@ -180,6 +180,7 @@ class RocketLaunchScreen:
 
         self.advance_dialogue(assets, world, game.soundManager)
 
+        #this is not calculated correctly
         tw = thrust / world.rocket.mass / 9.8
         self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)), False, (255,255,255)), (0,0))
 

@@ -15,7 +15,7 @@ class Game:
         self.timeOnScreen = 0
         self.world = World()
         self.clock = pygame.time.Clock()
-        self.mode = 3
+        self.mode = 0
         self.settings = {}
         self.renderer = Renderer()
         self.inputManager = InputManager()
