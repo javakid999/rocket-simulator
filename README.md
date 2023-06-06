@@ -11,5 +11,7 @@ Schedule:
 
 
 List of bugs to fix:
-* The fact that the orbit trails are broken
 * You can't burn from the map screen
+* You can't stage
+* Paths are still a little broken
+* Engine realismo

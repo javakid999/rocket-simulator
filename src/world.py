@@ -1,12 +1,14 @@
 import pygame, math
 
 from box import Box
+from grid import Grid
 from planet import Planet
 
 class World:
     def __init__(self):
         self.camera = pygame.Rect(0,0,1280,720)
-        self.rocket = Box([700,20],[40,50],1,0,0)
+        self.grid = Grid()
+        self.rocket = Box(self.grid, [700,250], [150,375], 1, 0, 0)
         self.platform = pygame.Rect(200,250,1000,50)
         self.planets = []
         self.planet_counter = 0
@@ -22,14 +24,9 @@ class World:
         self.planets[self.planet_counter-1].add_atmosphere(color, size)
 
 
-    def get_altitude(self):
-        if len(self.planets) == 0: return -1
-        min_dist_sq = (self.rocket.position[0]-self.planets[0].position[0])**2+(self.rocket.position[1]-self.planets[0].position[1])**2-self.planets[0].radius**2
-        for i in range(1, len(self.planets)):
-            dist_sq = (self.rocket.position[0]-self.planets[i].position[0])**2+(self.rocket.position[1]-self.planets[i].position[1])**2-self.planets[0].radius**2
-            if dist_sq < min_dist_sq:
-                min_dist_sq = dist_sq
-        return math.sqrt(min_dist_sq)
+    def get_altitude(self, planet):
+        dist_sq = (self.rocket.position[0]-planet.position[0])**2+(self.rocket.position[1]-planet.position[1])**2
+        return math.sqrt(dist_sq)-planet.radius
     
     def in_planet_atmosphere(self, planet):
         if not planet.atmosphere: return False
@@ -48,7 +45,7 @@ class World:
 
     def render(self, screen, time_active):
         atmosphere_color = (0,0,0)
-        altitude = self.get_altitude()
+        altitude = self.get_altitude(self.planets[0])
         for planet in self.planets:
             if altitude < planet.atmosphere_size and self.in_planet_atmosphere(planet):
                 atmosphere_color = planet.atmosphere_color.lerp(pygame.Color(0,0,0), altitude/planet.atmosphere_size)
@@ -104,17 +101,45 @@ class World:
 
                 points[j].append([640+(positions[j][0]-pos[0])*1.1**zoom+offset[0], 360+(positions[j][1]-pos[1])*1.1**zoom+offset[1]])
 
-        #update rocket
-            #todo: fixing the stupid trails because idk how to land on the moon
+        #recalculate positions for different fucking timestep
+        positions = []
+        velocities = []
+        for i in range(len(self.planets)):
+            positions.append([*self.planets[i].position])
+            velocities.append([*self.planets[i].linear_velocity])
 
         for i in range(path_length):
-            dt = max(self.get_altitude()/10000,2)
+            dt = max(self.get_altitude(self.planets[0])/10000,2)
+            
+            for j in range(len(self.planets)):
+                forces = []
+                if self.planets[j].static: continue
+                for planet in self.planets:
+                    if planet.id == self.planets[j].id: continue
+                    dist = math.hypot(planet.position[0]-positions[j][0], planet.position[1]-positions[j][1])
+                    vector_planet = [(planet.position[0]-positions[j][0])/dist, (planet.position[1]-positions[j][1])/dist]
+                    gravitational_force = 6.67*10**-10*planet.mass*self.planets[j].mass/(dist*dist)
+                    forces.append([[0,0], ([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])])
+                
+                sum_forces = [0,0]
+                for force in forces:
+                    sum_forces[0] += force[1][0]
+                    sum_forces[1] += force[1][1]
+                acceleration = [sum_forces[0]/self.planets[j].mass, sum_forces[1]/self.planets[j].mass]
+                velocities[j][0] += acceleration[0]*dt
+                velocities[j][1] += acceleration[1]*dt
+                positions[j][0] += velocities[j][0]*dt
+                positions[j][1] += velocities[j][1]*dt
+
+        for i in range(path_length):
+            dt = max(self.get_altitude(self.planets[0])/10000,2)
 
             forces = []
-            for planet in positions:
-                dist = math.hypot(rocket_position[0]-planet.position[0], rocket_position[1]-planet.position[1])
-                vector_planet = [(planet.position[0]-rocket_position[0])/dist, (planet.position[1]-rocket_position[1])/dist]
-                gravitational_force = 6.67*10**-10*planet.mass*self.rocket.mass/(dist*dist)
+            for i in range(len(positions)):
+                planet = positions[i]
+                dist = math.hypot(rocket_position[0]-planet[0], rocket_position[1]-planet[1])
+                vector_planet = [(planet[0]-rocket_position[0])/dist, (planet[1]-rocket_position[1])/dist]
+                gravitational_force = 6.67*10**-10*self.planets[i].mass*self.rocket.mass/(dist*dist)
                 forces.append([[0,0], ([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])])
                 
             sum_forces = [0,0]
@@ -137,10 +162,10 @@ class World:
         pygame.draw.lines(screen, (200,255,200), False, rocket_points)
 
     def render_map(self, screen, offset):
-        self.draw_paths(screen, self.rocket.position, self.zoom, offset)
-
         for planet in self.planets:
             planet.render_map(screen, self, self.rocket.position, self.zoom, offset)
+
+        self.draw_paths(screen, self.rocket.position, self.zoom, offset)
 
         rocket_surface = pygame.Surface((20,20), pygame.SRCALPHA)
         pygame.draw.rect(rocket_surface, (200,200,200), (0,0,20,20))

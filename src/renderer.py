@@ -52,8 +52,8 @@ class Renderer:
 
     def initScreens(self, game):
         pygame.display.set_icon(game.assetManager.assets['cheese'])
-        self.screens['mainmenu'] = MainMenuScreen(game.assetManager.assets)
+        self.screens['mainmenu'] = MainMenuScreen(game.assetManager.assets, game.settings)
         self.screens['intro'] = IntroScreen(game.assetManager.assets)
         self.screens['launch'] = RocketLaunchScreen()
         self.screens['map'] = MapScreen()
-        self.screens['build'] = BuildScreen()
+        self.screens['build'] = BuildScreen(game.assetManager.assets)

@@ -128,7 +128,7 @@ class Planet:
                         points_land.append([corners[i][0]-rect.left, corners[i][1]-rect.top])
                         points_water.append([corners[i][0]-rect.left, corners[i][1]-rect.top])
 
-                pygame.draw.polygon(self.mask_water, (0,128,255), points_water)
+                pygame.draw.polygon(self.mask_water, (255,255,255), points_water)
                 pygame.draw.polygon(self.mask_surface, (255,255,255), points_land)
 
                 masked_texture_surface = self.textures['land'].copy()
@@ -179,5 +179,7 @@ class Planet:
             pygame.draw.lines(screen, (255,255,255), False, points)
 
     def render_map(self, screen, world, pos, zoom, offset):
-        self.draw_path(screen, world, pos, zoom, offset)
+        #self.draw_path(screen, world, pos, zoom, offset)
+        if self.atmosphere:
+            pygame.draw.circle(screen, (40,40,40), (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), (self.radius+self.atmosphere_size)*1.1**zoom)
         pygame.draw.circle(screen, self.map_color, (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), self.radius*1.1**zoom)

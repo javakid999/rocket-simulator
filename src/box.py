@@ -2,7 +2,8 @@ import pygame, math
 from GameManagers.assetmanager import AssetManager
 
 class Box:
-    def __init__(self, position, size, mass, id, static=0):
+    def __init__(self, grid, position, size, mass, id, static=0):
+        self.grid = grid
         self.id = id
         self.size = size
 
@@ -25,6 +26,13 @@ class Box:
         self.planet_point_index = 0
 
     def update(self, world, forces):
+        self.size = [world.grid.size[0]*15, world.grid.size[1]*15]
+        mass = 0
+        for i in range(len(world.grid.parts)):
+            mass += world.grid.parts[i].mass
+        self.mass = mass
+        self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
+
         dt = 1/60
 
         sum_forces = [0,0]
@@ -76,7 +84,8 @@ class Box:
 
     def render(self, screen, camera):
         surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        pygame.draw.rect(surface, (255,0,0), (0, 0, self.size[0], self.size[1]))  
+        surface.blit(self.grid.render_launch(), (0,0))
+        
         rotated_image = pygame.transform.rotate(surface, -self.angle)
         screen.blit(rotated_image, (self.position[0]-camera.left-rotated_image.get_width()/2,self.position[1]-camera.top-rotated_image.get_height()/2))
         for point in self.rotate_points(self.angle):
@@ -97,7 +106,7 @@ class Box:
         a = self.rotate_points(self.angle)
         b = other_square.rotate_points(other_square.angle)
 
-        polygons = [a, b];
+        polygons = [a, b]
         minA, maxA, projected, i, i1, j, minB, maxB = None, None, None, None, None, None, None, None
 
         normal = [0,0]

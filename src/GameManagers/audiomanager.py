@@ -20,3 +20,6 @@ class AudioManager:
     def stopMusic(self):
         pygame.mixer.music.stop()
         pygame.mixer.music.unload()
+
+    def setVolume(self, volume):
+        pygame.mixer.music.set_volume(volume)

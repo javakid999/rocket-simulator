@@ -95,7 +95,8 @@ class IntroScreen:
             self.surface.blit(assets['cutscene_6'], (640, 0))
 
         for item in self.ui:
-            item.render(self.surface, pos)
+            if self.timeActive > 400:
+                item.render(self.surface, pos)
 
         screen.blit(self.surface, (0,0))
         self.timeActive += 1
@@ -103,7 +104,7 @@ class IntroScreen:
     def update_ui(self, pos, game):
         for item in self.ui:
             if item.update(pos):
-                if item.id == 'continue':
+                if item.id == 'continue' and self.timeActive > 400:
                     if self.menuState.activeState == '1':
                         self.menuState.to('2')
                         self.timeActive = 0
@@ -112,3 +113,4 @@ class IntroScreen:
                         self.timeActive = 0
                     elif self.menuState.activeState == '3':
                         game.mode = 3
+                        game.soundManager.playMusic('bored_to_bits', 2000)

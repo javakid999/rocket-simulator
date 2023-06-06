@@ -1,20 +1,22 @@
 import math
 import pygame
-from button import Button
+from button import Button, Slider
 from particle import Particle, ParticleSystem
 from statemachine import StateMachine
 
 class MainMenuScreen:
-    def __init__(self, assets):
+    def __init__(self, assets, settings):
         self.menuState = StateMachine()
-        self.menuState.addState('title', ['startgame', 'options'], True)
-        self.menuState.addState('startgame', ['title'])
+        self.menuState.addState('title', ['options', 'credits'], True)
         self.menuState.addState('options', ['title'])
+        self.menuState.addState('credits', ['title'])
 
         self.ui = [
             Button('start', (490, 300), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_start']}),
             Button('options', (490, 410), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_options']}),
             Button('credits', (490, 520), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_credits']}),
+            Button('back', (490, 600), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_back']}),
+            Slider('volume', (500, 520), (400,20), {'ball': assets['slider_ball'], 'empty': assets['slider_empty'], 'full': assets['slider_full']}, settings['volume']),
         ]
 
         base_particle = Particle(assets['cheese'])
@@ -36,7 +38,13 @@ class MainMenuScreen:
         self.surface.blit(title_surface, (320, 150-title_surface.get_height()/2))
 
         for item in self.ui:
-            item.render(self.surface, pos)
+            if self.menuState.activeState == 'title':
+                if item.id in ['start', 'options', 'credits']:
+                    item.render(self.surface, pos)
+            if self.menuState.activeState == 'options':
+                if item.id in ['volume', 'back']:
+                    item.render(self.surface, pos)
+                    self.surface.blit(pygame.transform.scale(assets['text_volume'], (300,100)), (200, 460))
 
         screen.blit(self.surface, (0,0))
         self.timeActive += 1
@@ -44,10 +52,16 @@ class MainMenuScreen:
     def update_ui(self, pos, game):
         for item in self.ui:
             if item.update(pos):
-                if item.id == 'start':
-                    game.mode = 4
-                    game.soundManager.playMusic('free_bird', 2000)
-                if item.id == 'options':
-                    pass
-                if item.id == 'credits':
-                    pass
+                if self.menuState.activeState == 'title':
+                    if item.id == 'start':
+                        game.mode = 4
+                        game.soundManager.playMusic('deftone', 2000)
+                    if item.id == 'options':
+                        self.menuState.to('options')
+                    if item.id == 'credits':
+                        pass
+                if self.menuState.activeState == 'options':
+                    if item.id == 'back':
+                        self.menuState.to('title')
+                    if item.id == 'volume':
+                        game.soundManager.setVolume(item.value)
