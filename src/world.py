@@ -1,8 +1,10 @@
+import json
 import pygame, math
 
 from box import Box
 from grid import Grid
 from planet import Planet
+from part import Engine
 
 class World:
     def __init__(self):
@@ -12,6 +14,8 @@ class World:
         self.platform = pygame.Rect(200,250,1000,50)
         self.planets = []
         self.planet_counter = 0
+        self.save_state_counter = 0
+        self.time_step = 1/60
         self.zoom = 0.1
 
     def add_planet(self, position, radius, textures, mass, sea_level, map_color, static=True, velocity=[0,0]):
@@ -23,9 +27,64 @@ class World:
         for planet in self.planets:
             planet.get_points(2)
 
-    def add_planet_atmosphere(self, color, size):
-        self.planets[self.planet_counter-1].add_atmosphere(color, size)
+    def time_step_increase(self):
+        if self.time_step == 1/60:
+            self.time_step = 1/30
+        elif self.time_step == 1/30:
+            self.time_step = 1/10
+        elif self.time_step == 1/10:
+            self.time_step = 1/5
+        elif self.time_step == 1/5:
+            self.time_step = 1
+    
+    def save_state(self):
+        state = {}
+        state['name'] = 'Quicksave ' + str(self.save_state_counter)
+        state['rocket'] = {
+            'position': self.rocket.position,
+            'linear_velocity': self.rocket.linear_velocity,
+            'angle': self.rocket.angle,
+            'angular_velocity': self.rocket.angular_velocity
+        }
 
+        state['planets'] = {}
+        for planet in self.planets:
+            state['planets'][str(planet.id)] = {
+                'position': planet.position,
+                'linear_velocity': planet.linear_velocity
+            }
+
+        with open('./src/Saves/save_states/'+'Quicksave '+str(self.save_state_counter)+'.json', 'w') as outfile:
+            json.dump(state, outfile)
+        self.save_state_counter += 1
+        
+
+    def load_state(self, name):
+        state = json.load(open('./src/Saves/save_states/'+name+'.json'))
+        self.rocket.position = state['rocket']['position']
+        self.rocket.linear_velocity = state['rocket']['linear_velocity']
+        self.rocket.angle = state['rocket']['angle']
+        self.rocket.angular_velocity = state['rocket']['angular_velocity']
+        for i in range(len(self.planets)):
+            self.planets[i].position = state['planets'][str(self.planets[i].id)]['position']
+            self.planets[i].linear_velocity = state['planets'][str(self.planets[i].id)]['linear_velocity']
+
+    def time_step_decrease(self):
+        if self.time_step == 1:
+            self.time_step = 1/5
+        elif self.time_step == 1/5:
+            self.time_step = 1/10
+        elif self.time_step == 1/10:
+            self.time_step = 1/30
+        elif self.time_step == 1/30:
+            self.time_step = 1/60
+
+    def get_thrust(self):
+        thrust = 0
+        for part in self.grid.parts:
+            if isinstance(part, Engine):
+                thrust += 40000
+        return thrust
 
     def get_altitude(self, planet):
         dist_sq = (self.rocket.position[0]-planet.position[0])**2+(self.rocket.position[1]-planet.position[1])**2

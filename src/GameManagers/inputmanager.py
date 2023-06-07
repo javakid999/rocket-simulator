@@ -10,11 +10,13 @@ class InputManager:
         self.keys = []
         self.keys = pygame.key.get_pressed()
         self.key_press = {
+            'x': False,
             'z': False,
             'm': False,
             '+': False,
             '-': False,
             'r': False,
+            'c': False
         }
 
     def loadInput(self):
@@ -37,22 +39,32 @@ class InputManager:
     def update_keys(self):
         keys_prev = {
             'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m],
-            '+': self.keys[pygame.K_PLUS], '-': self.keys[pygame.K_MINUS],
-            'r': self.keys[pygame.K_r]
+            '+': self.keys[pygame.K_EQUALS], '-': self.keys[pygame.K_MINUS],
+            'r': self.keys[pygame.K_r], 'x': self.keys[pygame.K_x], 'c': self.keys[pygame.K_c]
         }
         self.keys = pygame.key.get_pressed()
+
+        if self.keys[pygame.K_x] and not keys_prev['x']:
+            self.key_press['x'] = True
+        else:
+            self.key_press['x'] = False
 
         if self.keys[pygame.K_z] and not keys_prev['z']:
             self.key_press['z'] = True
         else:
             self.key_press['z'] = False
 
+        if self.keys[pygame.K_c] and not keys_prev['c']:
+            self.key_press['c'] = True
+        else:
+            self.key_press['c'] = False
+
         if self.keys[pygame.K_m] and not keys_prev['m']:
             self.key_press['m'] = True
         else:
             self.key_press['m'] = False
 
-        if self.keys[pygame.K_PLUS] and not keys_prev['+']:
+        if self.keys[pygame.K_EQUALS] and not keys_prev['+']:
             self.key_press['+'] = True
         else:
             self.key_press['+'] = False
@@ -70,6 +82,10 @@ class InputManager:
     def click_event(self, game):
         if game.mode == 0:
             game.renderer.screens['mainmenu'].update_ui(self.mouse_pos, game)
+        elif game.mode == 1:
+            game.renderer.screens['launch'].update_ui(self.mouse_pos, game)
+        elif game.mode == 2:
+            game.renderer.screens['map'].update_ui(self.mouse_pos, game)
         elif game.mode == 3:
             game.renderer.screens['build'].update_ui(self.mouse_pos, game)
         elif game.mode == 4:

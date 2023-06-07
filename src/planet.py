@@ -54,9 +54,6 @@ class Planet:
                         feature_point = True
                         break
                 if feature_point == False:
-                    if i > 150063 and i < 150115:
-                        self.points.append(0.1)
-                    else:
                         self.points.append(values[i])
 
             self.save_points()
@@ -67,7 +64,7 @@ class Planet:
             self.points = planet['points']
 
     def update(self, world):
-        dt = 1/60
+        dt = world.time_step
 
         if self.static:
             return
@@ -142,8 +139,8 @@ class Planet:
                 masked_texture_surface = self.textures['land'].copy()
                 masked_texture_water = self.textures['water'].copy()
 
-                masked_texture_surface.scroll(-rect.left%32-32, -rect.top%32-32)
-                masked_texture_water.scroll((-rect.left+int(time_active/5))%32-32, -rect.top%32-32)
+                masked_texture_surface.scroll((self.position[0]-rect.left)%32-32, (self.position[1]-rect.top)%32-32)
+                masked_texture_water.scroll((self.position[0]-rect.left+int(time_active/5))%32-32, (self.position[1]-rect.top)%32-32)
 
                 masked_texture_water.blit(self.mask_water, (0,0), None, pygame.BLEND_RGBA_MULT)
                 masked_texture_water.set_colorkey((0,0,0))

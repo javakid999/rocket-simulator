@@ -66,14 +66,16 @@ class Grid:
                 break
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             if type == 1:
-                self.parts.append(Engine(position, rotation, assets['rocket_engine']))
+                self.parts.append(Engine(position, rotation, assets['engine_strong']))
             if type == 2:
-                self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))
+                self.parts.append(Engine(position, rotation, assets['engine_weak']))
             if type == 3:
-                self.parts.append(Separator(position, rotation, assets['separator']))
+                self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))
             if type == 4:
-                self.parts.append(Capsule(position, rotation, assets['capsule']))
+                self.parts.append(Separator(position, rotation, assets['separator']))
             if type == 5:
-                self.parts.append(FuelTank(position, rotation, assets['fuel_cap'], 0.5))
+                self.parts.append(Capsule(position, rotation, assets['capsule']))
             if type == 6:
+                self.parts.append(FuelTank(position, rotation, assets['fuel_cap'], 0.5))
+            if type == 7:
                 self.parts.append(CheeseMachine(position, rotation, [assets['cheese_machine_0'], assets['cheese_machine_1'], assets['cheese_machine_2'], assets['cheese_machine_3'], assets['cheese_machine_4'], assets['cheese_machine_5'], assets['cheese_machine_6'], assets['cheese_machine_7'], assets['cheese_machine_8'], assets['cheese_machine_9']]))

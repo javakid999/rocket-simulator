@@ -43,8 +43,9 @@ class Game:
         moon_texture = self.assetManager.generateTiledTexture('moon', (1312,752))
         moon_water_texture = self.assetManager.generateTiledTexture('cheese_water', (1312,752))
         self.world.add_planet([700,637300], 637000, {'land': planet_texture, 'water': water_texture}, 5.97*10**21, 0.08, (128,128,255), True)
-        self.world.add_planet_atmosphere(pygame.Color(128,128,255), 10000)
-        self.world.planets[0].add_feature('Obelisk of Arnav', 150000, [20,20,20,20,20,20,20,20,20,20,20])
+        self.world.planets[0].add_atmosphere(pygame.Color(128,128,255), 10000)
+        self.world.planets[0].add_feature('Launchpad', 150063, [0.1]*52)
+        self.world.planets[0].add_feature('Ocean of Nav', 130000, [-6]*400)
         self.world.add_planet([700,4636040], 173740, {'land': moon_texture, 'water': moon_water_texture}, 7.348*10**19, 0.08, (200,200,200), False, [1000,0])
 
         self.world.generate_world()

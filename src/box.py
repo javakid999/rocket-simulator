@@ -33,7 +33,7 @@ class Box:
         self.mass = mass
         self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
 
-        dt = 1/60
+        dt = world.time_step
 
         sum_forces = [0,0]
         for force in forces:

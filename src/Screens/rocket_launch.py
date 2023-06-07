@@ -1,3 +1,4 @@
+import os
 import pygame, math
 from box import Box
 from part import Engine
@@ -23,6 +24,7 @@ class RocketLaunchScreen:
 
         self.surface = pygame.Surface((1280,720))
         self.font = pygame.font.Font('./src/Assets/Font/roboto.ttf', 20)
+        self.quicksave_menu = False
         self.dialogue_state = 0
         self.dialogue_time = -1
 
@@ -93,7 +95,6 @@ class RocketLaunchScreen:
             self.surface.blit(assets['president_dialogue'], (145,605))
             self.surface.blit(self.render_scroll(self.text[6], self.timeActive-self.dialogue_time), (250,600))
 
-
     def render_scroll(self, texts, scroll):
         height = 20
         words = []
@@ -155,38 +156,64 @@ class RocketLaunchScreen:
 
         world.render(self.surface, self.timeActive)
 
-        forces = []
-        thrust = 0
-        if inputManager.keys[pygame.K_w]:
-            for part in world.grid.parts:
-                if isinstance(part, Engine):
-                    thrust += 40000
-                    forces.append([(0,0),(40000*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-40000*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
-        if inputManager.keys[pygame.K_a]:
-            forces.append([(0,1000),(-1000,0)])
-            forces.append([(0,-1000),(1000,0)])
-        if inputManager.keys[pygame.K_d]:
-            forces.append([(0,1000),(1000,0)])
-            forces.append([(0,-1000),(-1000,0)])
-        
-        world.update(forces)
+        if self.quicksave_menu:
+            self.surface.blit(self.font.render('Load Quicksave:', True, (255,255,255)), (400, 100))
+            saves = os.listdir('./src/Saves/save_states')
+            for i in range(len(saves)):
+                save = saves[i]
+                pygame.draw.rect(self.surface, (0,0,0), (500,i*60+160,200,50))
+                self.surface.blit(self.font.render(save[0:save.rindex('.')], True, (255,255,255)), (520, 180+i*60))
+        else:
+            forces = []
 
-        if inputManager.key_press['m']:
-            game.mode = 2
+            if world.time_step == 1/60:
+                if inputManager.keys[pygame.K_w]:
+                    for part in world.grid.parts:
+                        if isinstance(part, Engine):
+                            forces.append([(0,0),(40000*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-40000*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
+                if inputManager.keys[pygame.K_a]:
+                    forces.append([(0,1000),(-1000,0)])
+                    forces.append([(0,-1000),(1000,0)])
+                if inputManager.keys[pygame.K_d]:
+                    forces.append([(0,1000),(1000,0)])
+                    forces.append([(0,-1000),(-1000,0)])
+            
+            world.update(forces)
 
-        for item in self.ui:
-            pass
+            if inputManager.key_press['m']:
+                game.mode = 2
+            if inputManager.key_press['x']:
+                world.save_state()
+            if not world.in_planet_atmosphere(world.planets[0]):
+                if inputManager.key_press['+']:
+                    world.time_step_increase()
+                if inputManager.key_press['-']:
+                    world.time_step_decrease()
+            else:
+                world.time_step = 1/60
 
-        self.advance_dialogue(assets, world, game.soundManager)
+            for item in self.ui:
+                pass
 
-        #this is not calculated correctly
-        tw = thrust / world.get_gravitational_force()
-        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)), False, (255,255,255)), (0,0))
+            self.advance_dialogue(assets, world, game.soundManager)
+
+        tw = world.get_thrust() / world.get_gravitational_force()
+        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Time Step: ' + str(round(world.time_step, 2)), False, (255,255,255)), (0,0))
+
+        if inputManager.key_press['c']:
+            self.quicksave_menu = not self.quicksave_menu
 
         screen.blit(self.surface, (0,0))
         self.timeActive += 1
 
     def update_ui(self, pos, game):
+        if self.quicksave_menu == True:
+                saves = os.listdir('./src/Saves/save_states')
+                for i in range(len(saves)):
+                    if pygame.Rect(500,i*60+160,200,50).collidepoint(*pos):
+                        game.world.load_state(saves[i][0:saves[i].rindex('.')])
+                        self.quicksave_menu = False
+
         for item in self.ui:
             if item.update(-1, pos):
                 pass

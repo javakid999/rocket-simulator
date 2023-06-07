@@ -6,7 +6,7 @@ from grid import Grid
 class BuildScreen:
     def __init__(self, assets):
         self.ui = [Button('launch', (20, 500), (200,66), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_launch']})]
-        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40), pygame.Rect(80, 325, 40, 40), pygame.Rect(20, 385, 40, 40), pygame.Rect(80, 385, 40, 40)]
+        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40), pygame.Rect(80, 325, 40, 40), pygame.Rect(20, 385, 40, 40), pygame.Rect(80, 385, 40, 40), pygame.Rect(20, 445, 40, 40)]
 
         self.surface = pygame.Surface((1280,720))
         self.rotation = 0
@@ -35,12 +35,13 @@ class BuildScreen:
                 pygame.draw.rect(self.surface, color, (j*60+15, i*60+200, 50, 50))
 
         self.surface.blit(pygame.transform.scale(assets['eraser'], (40,40)), self.buttons[0])
-        self.surface.blit(pygame.transform.scale(assets['rocket_engine'], (40,40)), self.buttons[1])
-        self.surface.blit(pygame.transform.scale(assets['fuel_tank'], (40,40)), self.buttons[2])
-        self.surface.blit(pygame.transform.scale(assets['separator'], (40,40)), self.buttons[3])
-        self.surface.blit(pygame.transform.scale(assets['capsule'], (40,40)), self.buttons[4])
-        self.surface.blit(pygame.transform.scale(assets['fuel_cap'], (40,40)), self.buttons[5])
-        self.surface.blit(pygame.transform.scale(assets['cheese_machine_'+str(math.floor(self.timeActive/15)%10)], (40,40)), self.buttons[6])
+        self.surface.blit(pygame.transform.scale(assets['engine_strong'], (40,40)), self.buttons[1])
+        self.surface.blit(pygame.transform.scale(assets['engine_weak'], (40,40)), self.buttons[2])
+        self.surface.blit(pygame.transform.scale(assets['fuel_tank'], (40,40)), self.buttons[3])
+        self.surface.blit(pygame.transform.scale(assets['separator'], (40,40)), self.buttons[4])
+        self.surface.blit(pygame.transform.scale(assets['capsule'], (40,40)), self.buttons[5])
+        self.surface.blit(pygame.transform.scale(assets['fuel_cap'], (40,40)), self.buttons[6])
+        self.surface.blit(pygame.transform.scale(assets['cheese_machine_'+str(math.floor(self.timeActive/15)%10)], (40,40)), self.buttons[7])
 
         for item in self.ui:
             item.render(self.surface, input_manager.mouse_pos)
