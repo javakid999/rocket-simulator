@@ -59,7 +59,7 @@ class BuildScreen:
             game.world.grid.selected_type = 4
 
         if pygame.Rect(280,0,1000,720).collidepoint(pos):
-            game.world.grid.place(self.offset, pos, game.world.grid.selected_type, self.rotation)
+            game.world.grid.place(self.offset, pos, game.world.grid.selected_type, self.rotation, game.assetManager.assets)
 
         for item in self.ui:
             if item.update(pos):

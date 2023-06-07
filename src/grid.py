@@ -57,7 +57,7 @@ class Grid:
 
         return pygame.transform.scale(surface, (15*self.size[0], 15*self.size[1]))
     
-    def place(self, offset, pos, type, rotation):
+    def place(self, offset, pos, type, rotation, assets):
         position = [math.floor((pos[0]-offset[0]-280)/50)*50, math.floor((pos[1]-offset[1])/50)*50]
         position = [position[0]/50,position[1]/50]
         for part in self.parts:
@@ -66,10 +66,10 @@ class Grid:
                 break
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             if type == 1:
-                self.parts.append(Engine(position, rotation))
+                self.parts.append(Engine(position, rotation, assets['arnav_window']))
             if type == 2:
-                self.parts.append(FuelTank(position, rotation))
+                self.parts.append(FuelTank(position, rotation, assets['fuel_tank']))
             if type == 3:
-                self.parts.append(Separator(position, rotation))
+                self.parts.append(Separator(position, rotation, assets['separator']))
             if type == 4:
-                self.parts.append(Capsule(position, rotation))
+                self.parts.append(Capsule(position, rotation, assets['arnav_window']))

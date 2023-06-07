@@ -65,12 +65,12 @@ class RocketLaunchScreen:
         
         if self.dialogue_state == 2 and self.timeActive-self.dialogue_time < 600:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
-            self.surface.blit(assets['frog'], (145,605))
+            self.surface.blit(assets['engineer_dialogue'], (145,605))
             self.surface.blit(self.render_scroll(self.text[1], self.timeActive-self.dialogue_time), (250,600))
 
         if self.dialogue_state == 3 and self.timeActive-self.dialogue_time < 600:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
-            self.surface.blit(assets['frog'], (145,605))
+            self.surface.blit(assets['engineer_dialogue'], (145,605))
             self.surface.blit(self.render_scroll(self.text[2], self.timeActive-self.dialogue_time), (250,600))
         
         if self.dialogue_state == 4 and self.timeActive-self.dialogue_time < 600:
@@ -85,7 +85,7 @@ class RocketLaunchScreen:
 
         if self.dialogue_state == 6 and self.timeActive-self.dialogue_time < 600:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
-            self.surface.blit(assets['frog'], (145,605))
+            self.surface.blit(assets['engineer_dialogue'], (145,605))
             self.surface.blit(self.render_scroll(self.text[5], self.timeActive-self.dialogue_time), (250,600))
 
         if self.dialogue_state == 7 and self.timeActive-self.dialogue_time < 600:

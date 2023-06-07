@@ -1,6 +1,4 @@
-import json
-import math
-import pygame
+import json, math, pygame, os
 
 class AssetManager:
     def __init__(self):
@@ -9,15 +7,24 @@ class AssetManager:
                           ['./src/Assets/Images/button.png', -1], ['./src/Assets/Images/button_highlight.png', -1], ['./src/Assets/Images/text_continue.png', -1], ['./src/Assets/Images/text_credits.png', -1], ['./src/Assets/Images/text_start.png', -1], ['./src/Assets/Images/text_options.png', -1],
                           ['./src/Assets/Images/cheese_water.jpg', (32,32)], ['./src/Assets/Images/moon.jpg', (32,32)], ['./src/Assets/Images/cutscene_1.png', (640,640)], ['./src/Assets/Images/cutscene_2.png', (640,640)], ['./src/Assets/Images/cutscene_3.png', (640,640)], 
                           ['./src/Assets/Images/cutscene_4.png', (640,640)], ['./src/Assets/Images/cutscene_5.jpg', (640,640)], ['./src/Assets/Images/cutscene_6.jpg', (640,640)], ['./src/Assets/Images/president_dialogue.png', (100,100)], ['./src/Assets/Images/soviet_dialogue.png', (100,100)],
-                          ['./src/Assets/Images/frog.jpg', (100,100)], ['./src/Assets/Images/text_launch.png', -1], ['./src/Assets/Images/slider_ball.png', -1], ['./src/Assets/Images/slider_empty.png', -1], ['./src/Assets/Images/slider_full.png', -1], ['./src/Assets/Images/text_volume.png', -1], ['./src/Assets/Images/text_fullscreen.png', -1],
-                          ['./src/Assets/Images/text_back.png', -1],
+                          ['./src/Assets/Images/frog.jpg', (100,100)], ['./src/Assets/Images/engineer_dialogue.png', (100,100)], ['./src/Assets/Images/text_launch.png', -1], ['./src/Assets/Images/slider_ball.png', -1], ['./src/Assets/Images/slider_empty.png', -1], ['./src/Assets/Images/slider_full.png', -1], ['./src/Assets/Images/text_volume.png', -1], ['./src/Assets/Images/text_fullscreen.png', -1],
+                          ['./src/Assets/Images/text_back.png', -1], ['./src/Assets/Images/Parts', (50,50)]
                           ]
 
     def loadAssets(self):
         for asset in self.assetList:
+            if not (asset[0].endswith('.png') or asset[0].endswith('.jpg')):
+                self.load_folder(asset[0], asset[1])
+                continue
             image = self.loadAsset(asset[0], asset[1])
             self.assets[image[1]] = image[0]
-            
+
+    def load_folder(self, folder_path, size):
+        paths = os.listdir(folder_path)
+        for path in paths:
+            image = self.loadAsset(folder_path + '/' + path, size)
+            self.assets[image[1]] = image[0]
+     
     @staticmethod
     def loadAsset(path, size=-1):
         if path.find('atlas') != -1:
