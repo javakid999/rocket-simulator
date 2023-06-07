@@ -28,8 +28,9 @@ class Planet:
         self.atmosphere_color = color
         self.atmosphere = True
 
-    def add_feature():
-        pass
+    def add_feature(self, name, start, points):
+        end = start + len(points)
+        self.features.append([name, start, end, points, 2*math.pi*(((start+end)/2)/int(self.radius * math.pi / self.quality))])
 
     def save_points(self):
         planet_data = {}
@@ -46,10 +47,17 @@ class Planet:
             num_points = int(self.radius * math.pi / self.quality)
             values = PerlinNoise.generate_values(seed, 5, num_points)
             for i in range(num_points):
-                if i > 150063 and i < 150115:
-                    self.points.append(0.1)
-                else:
-                    self.points.append(values[i])
+                feature_point = False
+                for feature in self.features:
+                    if feature[1] <= i < feature[2]:
+                        self.points.append(feature[3][i-feature[1]])
+                        feature_point = True
+                        break
+                if feature_point == False:
+                    if i > 150063 and i < 150115:
+                        self.points.append(0.1)
+                    else:
+                        self.points.append(values[i])
 
             self.save_points()
         else:
@@ -178,8 +186,12 @@ class Planet:
                 points.append([640+(position[0]-pos[0])*1.1**zoom+offset[0], 360+(position[1]-pos[1])*1.1**zoom+offset[1]])
             pygame.draw.lines(screen, (255,255,255), False, points)
 
-    def render_map(self, screen, world, pos, zoom, offset):
-        #self.draw_path(screen, world, pos, zoom, offset)
+    def render_map(self, screen, world, pos, zoom, offset, font):
         if self.atmosphere:
             pygame.draw.circle(screen, (40,40,40), (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), (self.radius+self.atmosphere_size)*1.1**zoom)
         pygame.draw.circle(screen, self.map_color, (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), self.radius*1.1**zoom)
+        for feature in self.features:
+            position = (self.position[0]+math.cos(feature[4])*self.radius, self.position[1]+math.sin(feature[4])*self.radius)
+            position = (640+(position[0]-pos[0])*1.1**zoom+offset[0],360+(position[1]-pos[1])*1.1**zoom+offset[1])
+            pygame.draw.circle(screen, (255,128,128), position, 5)
+            screen.blit(font.render(feature[0], False, (255,255,255)), position)

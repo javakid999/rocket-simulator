@@ -1,7 +1,7 @@
 import math
 import pygame
 
-from part import Capsule, Engine, FuelTank, Separator
+from part import Capsule, CheeseMachine, Engine, FuelTank, Separator
 
 class Grid:
     def __init__(self):
@@ -9,7 +9,7 @@ class Grid:
         self.selected_type = 0
         self.parts = []
     
-    def render_blueprint(self, screen, pos, mouse_pos):
+    def render_blueprint(self, screen, pos, mouse_pos, frame):
         surface = pygame.Surface((1000, 720))
         surface.fill((100,100,100))
 
@@ -26,7 +26,7 @@ class Grid:
             pygame.draw.line(surface, (255,255,255), (0+pos[0], i*50+pos[1]), (self.size[0]*50+pos[0], i*50+pos[1]))
 
         for part in self.parts:
-            part.render(surface, pos)
+            part.render(surface, pos, frame)
 
         screen.blit(surface, (280,0))
 
@@ -49,11 +49,11 @@ class Grid:
             self.parts[i].position[1] -= min_y
         self.size = (max_x-min_x+1, max_y-min_y+1)
 
-    def render_launch(self):
+    def render_launch(self, frame):
         surface = pygame.Surface((self.size[0]*50, self.size[1]*50), pygame.SRCALPHA)
 
         for part in self.parts:
-            part.render(surface, [0,0])
+            part.render(surface, [0,0], frame)
 
         return pygame.transform.scale(surface, (15*self.size[0], 15*self.size[1]))
     
@@ -66,10 +66,14 @@ class Grid:
                 break
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             if type == 1:
-                self.parts.append(Engine(position, rotation, assets['arnav_window']))
+                self.parts.append(Engine(position, rotation, assets['rocket_engine']))
             if type == 2:
-                self.parts.append(FuelTank(position, rotation, assets['fuel_tank']))
+                self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))
             if type == 3:
                 self.parts.append(Separator(position, rotation, assets['separator']))
             if type == 4:
-                self.parts.append(Capsule(position, rotation, assets['arnav_window']))
+                self.parts.append(Capsule(position, rotation, assets['capsule']))
+            if type == 5:
+                self.parts.append(FuelTank(position, rotation, assets['fuel_cap'], 0.5))
+            if type == 6:
+                self.parts.append(CheeseMachine(position, rotation, [assets['cheese_machine_0'], assets['cheese_machine_1'], assets['cheese_machine_2'], assets['cheese_machine_3'], assets['cheese_machine_4'], assets['cheese_machine_5'], assets['cheese_machine_6'], assets['cheese_machine_7'], assets['cheese_machine_8'], assets['cheese_machine_9']]))

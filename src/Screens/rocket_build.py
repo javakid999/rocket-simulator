@@ -6,7 +6,7 @@ from grid import Grid
 class BuildScreen:
     def __init__(self, assets):
         self.ui = [Button('launch', (20, 500), (200,66), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_launch']})]
-        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40)]
+        self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40), pygame.Rect(80, 325, 40, 40), pygame.Rect(20, 385, 40, 40), pygame.Rect(80, 385, 40, 40)]
 
         self.surface = pygame.Surface((1280,720))
         self.rotation = 0
@@ -25,7 +25,7 @@ class BuildScreen:
             if self.rotation == 4:
                 self.rotation = 0
 
-        world.grid.render_blueprint(self.surface, self.offset, input_manager.mouse_pos)
+        world.grid.render_blueprint(self.surface, self.offset, input_manager.mouse_pos, math.floor((self.timeActive/15)%10))
 
         for i in range(4):
             for j in range(2):
@@ -34,11 +34,13 @@ class BuildScreen:
                     color = (240,240,240)
                 pygame.draw.rect(self.surface, color, (j*60+15, i*60+200, 50, 50))
 
-        pygame.draw.rect(self.surface, (0,0,0), self.buttons[0])
-        pygame.draw.rect(self.surface, (255,0,0), self.buttons[1])
-        pygame.draw.rect(self.surface, (255,255,0), self.buttons[2])
-        pygame.draw.rect(self.surface, (0,255,0), self.buttons[3])
-        pygame.draw.rect(self.surface, (0,255,255), self.buttons[4])
+        self.surface.blit(pygame.transform.scale(assets['eraser'], (40,40)), self.buttons[0])
+        self.surface.blit(pygame.transform.scale(assets['rocket_engine'], (40,40)), self.buttons[1])
+        self.surface.blit(pygame.transform.scale(assets['fuel_tank'], (40,40)), self.buttons[2])
+        self.surface.blit(pygame.transform.scale(assets['separator'], (40,40)), self.buttons[3])
+        self.surface.blit(pygame.transform.scale(assets['capsule'], (40,40)), self.buttons[4])
+        self.surface.blit(pygame.transform.scale(assets['fuel_cap'], (40,40)), self.buttons[5])
+        self.surface.blit(pygame.transform.scale(assets['cheese_machine_'+str(math.floor(self.timeActive/15)%10)], (40,40)), self.buttons[6])
 
         for item in self.ui:
             item.render(self.surface, input_manager.mouse_pos)
@@ -57,6 +59,12 @@ class BuildScreen:
             game.world.grid.selected_type = 3
         if self.buttons[4].collidepoint(pos):
             game.world.grid.selected_type = 4
+        if self.buttons[5].collidepoint(pos):
+            game.world.grid.selected_type = 5
+        if self.buttons[6].collidepoint(pos):
+            game.world.grid.selected_type = 6
+        if self.buttons[7].collidepoint(pos):
+            game.world.grid.selected_type = 7
 
         if pygame.Rect(280,0,1000,720).collidepoint(pos):
             game.world.grid.place(self.offset, pos, game.world.grid.selected_type, self.rotation, game.assetManager.assets)

@@ -82,9 +82,9 @@ class Box:
             self.angular_velocity += angular_acceleration*dt
             self.angle += self.angular_velocity*dt
 
-    def render(self, screen, camera):
+    def render(self, screen, camera, time_active):
         surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        surface.blit(self.grid.render_launch(), (0,0))
+        surface.blit(self.grid.render_launch(math.floor((time_active/15)%10)), (0,0))
         
         rotated_image = pygame.transform.rotate(surface, -self.angle)
         screen.blit(rotated_image, (self.position[0]-camera.left-rotated_image.get_width()/2,self.position[1]-camera.top-rotated_image.get_height()/2))

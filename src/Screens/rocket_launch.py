@@ -14,7 +14,7 @@ class RocketLaunchScreen:
             [['You can do this', (255,255,255)], ['Agent Arnav!', (255,0,255)], ['All security checks on the', (255,255,255)], ['Rocket Name', (0,255,255)], ['have passed!', (255,255,255)]],
             [['Your rocket has taken off! Congratulations!', (255,255,255)]],
             [['We are all very proud of you,', (255,255,255)], ['Agent Arnav.', (255,0,255)], ['We wish you good luck on reaching the moon', (255,255,255)]],
-            [['We are now launching our own', (255,255,255)], ['Cheese Stealer Mk. IV', (100,255,0)], ['Hurry up', (255,255,255)], [':)', (255,0,0)]],
+            [['We are now launching our own', (255,255,255)], ['Soymilk Mk. IV', (100,255,0)], ['Hurry up', (255,255,255)], [':)', (255,0,0)]],
             [['Oh no! The Soviets are launching a rocket too! Don\'t waste any time!', (255,255,255)]],
             [['Looks like you\'ve got competition. Stay safe out there soldier.', (255,255,255)]],
             [['Rats! Our rocket combusted in orbit...', (255,255,255)]],
@@ -160,9 +160,8 @@ class RocketLaunchScreen:
         if inputManager.keys[pygame.K_w]:
             for part in world.grid.parts:
                 if isinstance(part, Engine):
-                    #todo: rocket engines are going the wrong way at horizontal?
-                    thrust += 10000
-                    forces.append([(0,0),(10000*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-10000*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
+                    thrust += 40000
+                    forces.append([(0,0),(40000*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-40000*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
         if inputManager.keys[pygame.K_a]:
             forces.append([(0,1000),(-1000,0)])
             forces.append([(0,-1000),(1000,0)])
@@ -181,7 +180,7 @@ class RocketLaunchScreen:
         self.advance_dialogue(assets, world, game.soundManager)
 
         #this is not calculated correctly
-        tw = thrust / world.rocket.mass / 9.8
+        tw = thrust / world.get_gravitational_force()
         self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)), False, (255,255,255)), (0,0))
 
         screen.blit(self.surface, (0,0))

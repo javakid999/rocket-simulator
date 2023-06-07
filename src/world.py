@@ -17,8 +17,11 @@ class World:
     def add_planet(self, position, radius, textures, mass, sea_level, map_color, static=True, velocity=[0,0]):
         planet = Planet(position, radius, textures, mass, sea_level, self.planet_counter, map_color, static, velocity)
         self.planet_counter += 1
-        planet.get_points(2)
         self.planets.append(planet)
+
+    def generate_world(self):
+        for planet in self.planets:
+            planet.get_points(2)
 
     def add_planet_atmosphere(self, color, size):
         self.planets[self.planet_counter-1].add_atmosphere(color, size)
@@ -32,6 +35,19 @@ class World:
         if not planet.atmosphere: return False
         if math.hypot(planet.position[0]-self.rocket.position[0], planet.position[1]-self.rocket.position[1])-planet.radius < planet.atmosphere_size: return True
         return False
+
+    def get_gravitational_force(self):
+        forces = []
+        for planet in self.planets:
+            dist = math.hypot(self.rocket.position[0]-planet.position[0], self.rocket.position[1]-planet.position[1])
+            vector_planet = [(planet.position[0]-self.rocket.position[0])/dist, (planet.position[1]-self.rocket.position[1])/dist]
+            gravitational_force = 6.67*10**-10*planet.mass*self.rocket.mass/(dist*dist)
+            forces.append([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])
+        sum = [0,0]
+        for force in forces:
+            sum[0] += force[0]
+            sum[1] += force[1]
+        return math.hypot(*sum)
 
     def update(self, forces):
         for planet in self.planets:
@@ -58,7 +74,7 @@ class World:
             planet.render(screen, self.camera, self.rocket, time_active)
         
         pygame.draw.rect(screen, (128,128,128), (self.platform.left-self.camera.left,self.platform.top-self.camera.top,self.platform.width,self.platform.height))
-        self.rocket.render(screen, self.camera)
+        self.rocket.render(screen, self.camera, time_active)
 
     def draw_paths(self, screen, pos, zoom, offset):
         positions = []
@@ -161,9 +177,9 @@ class World:
                 pygame.draw.lines(screen, (255,255,255), False, path)
         pygame.draw.lines(screen, (200,255,200), False, rocket_points)
 
-    def render_map(self, screen, offset):
+    def render_map(self, screen, offset, font):
         for planet in self.planets:
-            planet.render_map(screen, self, self.rocket.position, self.zoom, offset)
+            planet.render_map(screen, self, self.rocket.position, self.zoom, offset, font)
 
         self.draw_paths(screen, self.rocket.position, self.zoom, offset)
 

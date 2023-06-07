@@ -15,7 +15,7 @@ class Game:
         self.timeOnScreen = 0
         self.world = World()
         self.clock = pygame.time.Clock()
-        self.mode = 0
+        self.mode = 3
         self.settings = {}
         self.renderer = Renderer()
         self.inputManager = InputManager()
@@ -44,7 +44,10 @@ class Game:
         moon_water_texture = self.assetManager.generateTiledTexture('cheese_water', (1312,752))
         self.world.add_planet([700,637300], 637000, {'land': planet_texture, 'water': water_texture}, 5.97*10**21, 0.08, (128,128,255), True)
         self.world.add_planet_atmosphere(pygame.Color(128,128,255), 10000)
+        self.world.planets[0].add_feature('Obelisk of Arnav', 150000, [20,20,20,20,20,20,20,20,20,20,20])
         self.world.add_planet([700,4636040], 173740, {'land': moon_texture, 'water': moon_water_texture}, 7.348*10**19, 0.08, (200,200,200), False, [1000,0])
+
+        self.world.generate_world()
         
     def save_game(self, file):
         pass
