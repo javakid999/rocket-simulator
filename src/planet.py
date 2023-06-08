@@ -108,6 +108,88 @@ class Planet:
             else:
                 return False
 
+    def render_experimental(self, screen, rect, rocket, time_active):
+        self.mask_surface.fill((0,0,0))
+        self.mask_water.fill((0,0,0))
+        if self.intersection(rect):
+            expanded_rect = pygame.Rect(rect.left-20, rect.top-20, rect.width+40, rect.height+40)
+            points_land = []
+            points_water = []
+            rocket_angle = math.atan2(rocket.position[1]-self.position[1], rocket.position[0]-self.position[0])
+            angles = [math.atan2(rect.top-self.position[1], self.position[0]), math.atan2(rect.top-self.position[1], rect.right-self.position[0]), math.atan2(rect.bottom-self.position[1], rect.left-self.position[0]), math.atan2(rect.bottom-self.position[1], rect.right-self.position[0])]
+            
+            start_index = int(min(angles)/(math.pi*2)*len(self.points))%len(self.points)
+            end_index = int(max(angles)/(math.pi*2)*len(self.points))%len(self.points)
+            start_position = [self.position[0]+(self.radius+100*self.points[start_index])*math.cos(2*math.pi*((start_index)/len(self.points))),self.position[1]+(self.radius+100*self.points[start_index])*math.sin(2*math.pi*((start_index)/len(self.points)))]
+            end_position = [self.position[0]+(self.radius+100*self.points[end_index])*math.cos(2*math.pi*((end_index)/len(self.points))),self.position[1]+(self.radius+100*self.points[end_index])*math.sin(2*math.pi*((end_index)/len(self.points)))]
+            
+            for i in range(start_index, end_index, 1):
+                angle = 2*math.pi*((i)/len(self.points))
+                position = [self.position[0]-rect.left+(self.radius+100*self.points[i])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i])*math.sin(angle)]
+                position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
+                if expanded_rect.collidepoint(self.position[0]+self.radius*math.cos(angle),self.position[1]+self.radius*math.sin(angle)):
+                    points_land.append([*position])
+                    points_water.append([*position_water])
+            if len(points_land) > 2:
+                corners = [rect.topleft, rect.topright, rect.bottomleft, rect.bottomright]
+                corners_inside = []
+                for i in range(len(corners)):
+                    dist_to_corner = math.hypot(corners[i][0]-self.position[0], corners[i][1]-self.position[1])
+                    if dist_to_corner < self.radius+self.points[int(angles[i]/(math.pi*2)*len(self.points))%len(self.points)]*100:
+                        corners_inside.append(corners[i])
+                print(len(corners_inside))
+                if len(corners_inside) == 1:
+                    for i in range(len(corners_inside)):
+                        corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
+                    points_land.append(corners_inside[0])
+                    points_water.append(corners_inside[0])
+
+                elif len(corners_inside) == 2:
+                    if math.hypot(corners_inside[0][0]-start_position[0], corners_inside[0][1]-start_position[1]) > math.hypot(corners_inside[1][0]-start_position[0], corners_inside[1][1]-start_position[1]):
+                        for i in range(len(corners_inside)):
+                            corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
+                        points_land.append(corners_inside[0])
+                        points_water.append(corners_inside[0])
+                        points_land.append(corners_inside[1])
+                        points_water.append(corners_inside[1])
+                    else:
+                        for i in range(len(corners_inside)):
+                            corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
+                        points_land.append(corners_inside[1])
+                        points_water.append(corners_inside[1])
+                        points_land.append(corners_inside[0])
+                        points_water.append(corners_inside[0])
+
+                elif len(corners_inside) == 3:
+                    for i in range(len(corners_inside)-1):
+                        for j in range(len(corners_inside)-i-1):
+                            if math.hypot(corners_inside[j][0]-end_position[0], corners_inside[j][1]-end_position[1]) > math.hypot(corners_inside[j+1][0]-end_position[0], corners_inside[j+1][1]-end_position[1]):
+                                corners_inside[j], corners_inside[j + 1] = corners_inside[j + 1], corners_inside[j]
+                    for i in range(len(corners_inside)):
+                        corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
+                    points_land.append(*corners_inside)
+                    points_water.append(*corners_inside)
+
+                pygame.draw.polygon(self.mask_water, (255,255,255), points_water)
+                pygame.draw.polygon(self.mask_surface, (255,255,255), points_land)
+
+                masked_texture_surface = self.textures['land'].copy()
+                masked_texture_water = self.textures['water'].copy()
+
+                masked_texture_surface.scroll(int(self.position[0]-rect.left)%32-32, int(self.position[1]-rect.top)%32-32)
+                masked_texture_water.scroll(int(self.position[0]-rect.left+int(time_active/5*math.sin(rocket_angle)))%32-32, int(self.position[1]-rect.top+int(time_active/5*-math.cos(rocket_angle)))%32-32)
+
+                masked_texture_water.blit(self.mask_water, (0,0), None, pygame.BLEND_RGBA_MULT)
+                masked_texture_water.set_colorkey((0,0,0))
+
+                masked_texture_surface.blit(self.mask_surface, (0,0), None, pygame.BLEND_RGBA_MULT)
+                masked_texture_surface.set_colorkey((0,0,0))
+
+                screen.blit(masked_texture_water, (0,0))
+                screen.blit(masked_texture_surface, (0,0))
+        else:
+            return
+
     def render(self, screen, rect, rocket, time_active):
         self.mask_surface.fill((0,0,0))
         self.mask_water.fill((0,0,0))
@@ -115,8 +197,8 @@ class Planet:
             expanded_rect = pygame.Rect(rect.left-20, rect.top-20, rect.width+40, rect.height+40)
             points_land = []
             points_water = []
+            rocket_angle = math.atan2(rocket.position[1]-self.position[1], rocket.position[0]-self.position[0])
             for i in range(70):
-                rocket_angle = math.atan2(rocket.position[1]-self.position[1], rocket.position[0]-self.position[0])
                 planet_point_index = int(rocket_angle/(math.pi*2)*len(self.points))%len(self.points)
                 index = i-35+planet_point_index
                 angle = 2*math.pi*((index)/len(self.points))
@@ -139,8 +221,8 @@ class Planet:
                 masked_texture_surface = self.textures['land'].copy()
                 masked_texture_water = self.textures['water'].copy()
 
-                masked_texture_surface.scroll((self.position[0]-rect.left)%32-32, (self.position[1]-rect.top)%32-32)
-                masked_texture_water.scroll((self.position[0]-rect.left+int(time_active/5))%32-32, (self.position[1]-rect.top)%32-32)
+                masked_texture_surface.scroll(int(self.position[0]-rect.left)%32-32, int(self.position[1]-rect.top)%32-32)
+                masked_texture_water.scroll(int(self.position[0]-rect.left+int(time_active/5*math.sin(rocket_angle)))%32-32, int(self.position[1]-rect.top+int(time_active/5*-math.cos(rocket_angle)))%32-32)
 
                 masked_texture_water.blit(self.mask_water, (0,0), None, pygame.BLEND_RGBA_MULT)
                 masked_texture_water.set_colorkey((0,0,0))

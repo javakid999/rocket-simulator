@@ -4,10 +4,13 @@ import pygame
 from part import Capsule, CheeseMachine, Engine, FuelTank, Separator
 
 class Grid:
-    def __init__(self):
+    def __init__(self, assets):
         self.size = (10,25)
         self.selected_type = 0
         self.parts = []
+        self.engine_flames = []
+        for i in range(10):
+            self.engine_flames.append(assets[''])
     
     def render_blueprint(self, screen, pos, mouse_pos, frame):
         surface = pygame.Surface((1000, 720))

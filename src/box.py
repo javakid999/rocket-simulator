@@ -10,9 +10,6 @@ class Box:
         # 0 = normal, 1 = fixed position, 2 = fixed
         self.static = static
 
-        self.angular_friction = 0.1
-        self.kinetic_friction = 0.3
-
         self.mass = mass
         self.position = position
         self.linear_velocity = [0,0]
@@ -61,6 +58,8 @@ class Box:
                     if dist_to_center < surface_radius:
                         self.position[0] += math.cos(point_angle)*(surface_radius-dist_to_center)
                         self.position[1] += math.sin(point_angle)*(surface_radius-dist_to_center)
+                        self.linear_velocity[0] *= 0.7
+                        self.linear_velocity[1] *= 0.7
 
 
         if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(world.platform):

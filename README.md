@@ -16,4 +16,3 @@ List of bugs to fix:
 * Paths are still a little broken
 * Engine realismo
 * The planets may not render right
-* The textures are not rendering right

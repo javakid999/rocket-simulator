@@ -26,6 +26,7 @@ class World:
     def generate_world(self):
         for planet in self.planets:
             planet.get_points(2)
+        self.save_state('Launch')
 
     def time_step_increase(self):
         if self.time_step == 1/60:
@@ -37,9 +38,12 @@ class World:
         elif self.time_step == 1/5:
             self.time_step = 1
     
-    def save_state(self):
+    def save_state(self, name=-1):
         state = {}
-        state['name'] = 'Quicksave ' + str(self.save_state_counter)
+        if name != -1:
+            state['name'] = name
+        else:
+            state['name'] = 'Quicksave ' + str(self.save_state_counter)
         state['rocket'] = {
             'position': self.rocket.position,
             'linear_velocity': self.rocket.linear_velocity,
@@ -54,7 +58,10 @@ class World:
                 'linear_velocity': planet.linear_velocity
             }
 
-        with open('./src/Saves/save_states/'+'Quicksave '+str(self.save_state_counter)+'.json', 'w') as outfile:
+        filename = 'Quicksave '+str(self.save_state_counter)
+        if name != -1:
+            filename = name
+        with open('./src/Saves/save_states/'+filename+'.json', 'w') as outfile:
             json.dump(state, outfile)
         self.save_state_counter += 1
         
@@ -63,8 +70,17 @@ class World:
         state = json.load(open('./src/Saves/save_states/'+name+'.json'))
         self.rocket.position = state['rocket']['position']
         self.rocket.linear_velocity = state['rocket']['linear_velocity']
+        self.rocket.linear_acceleration = [0,0]
         self.rocket.angle = state['rocket']['angle']
         self.rocket.angular_velocity = state['rocket']['angular_velocity']
+        self.rocket.angular_acceleration = 0
+        self.rocket.update(self, [])
+        self.rocket.position = state['rocket']['position']
+        self.rocket.linear_velocity = state['rocket']['linear_velocity']
+        self.rocket.linear_acceleration = [0,0]
+        self.rocket.angle = state['rocket']['angle']
+        self.rocket.angular_velocity = state['rocket']['angular_velocity']
+        self.rocket.angular_acceleration = 0
         for i in range(len(self.planets)):
             self.planets[i].position = state['planets'][str(self.planets[i].id)]['position']
             self.planets[i].linear_velocity = state['planets'][str(self.planets[i].id)]['linear_velocity']
