@@ -12,7 +12,7 @@ class IntroScreen:
         self.menuState.addState('3', [])
         self.text = [[['The year is 20XX. Global cheese reserves are at an all time low ever since the last cow jumped over the moon 71 years ago.', (255,255,255)]],
                      [['To prevent the imminent collapse of these Great United States, we have tasked you,', (255,255,255)], ['Agent Arnav', (255,0,255)], ['with the mission of reestablishing the lunar cheese mines.', (255,255,255)]],
-                     [['Of course, we will provide you with the necessary resources and supplies, as well as the materials for your', (255,255,255)], ['Rocket name', (0,255,255)], ['. Good luck, Agent. You are our only hope.', (255,255,255)]]]
+                     [['Of course, we will provide you with the necessary resources and supplies, as well as the materials for your', (255,255,255)], ['Galactose I', (0,255,255)], ['. Good luck, Agent. You are our only hope.', (255,255,255)]]]
 
         self.ui = [
             Button('continue', (490, 300), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_continue']}),

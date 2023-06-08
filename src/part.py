@@ -27,7 +27,7 @@ class FuelTank(RocketPart):
 
 class Separator(RocketPart):
     def __init__(self, position, rotation, image):
-        super().__init__(position, (1,2), 50, image, rotation)
+        super().__init__(position, (2,2), 50, image, rotation)
         self.activated = False
 
 class Capsule(RocketPart):

@@ -7,9 +7,9 @@ from planet import Planet
 from part import Engine
 
 class World:
-    def __init__(self):
+    def __init__(self, assets):
         self.camera = pygame.Rect(0,0,1280,720)
-        self.grid = Grid()
+        self.grid = Grid(assets)
         self.rocket = Box(self.grid, [700,250], [150,375], 1, 0, 0)
         self.platform = pygame.Rect(200,250,1000,50)
         self.planets = []
@@ -74,7 +74,10 @@ class World:
         self.rocket.angle = state['rocket']['angle']
         self.rocket.angular_velocity = state['rocket']['angular_velocity']
         self.rocket.angular_acceleration = 0
-        self.rocket.update(self, [])
+        for i in range(len(self.planets)):
+            self.planets[i].position = state['planets'][str(self.planets[i].id)]['position']
+            self.planets[i].linear_velocity = state['planets'][str(self.planets[i].id)]['linear_velocity']
+        self.update([])
         self.rocket.position = state['rocket']['position']
         self.rocket.linear_velocity = state['rocket']['linear_velocity']
         self.rocket.linear_acceleration = [0,0]
@@ -246,6 +249,10 @@ class World:
             rocket_points.append([640+(rocket_position[0]-pos[0])*1.1**zoom+offset[0], 360+(rocket_position[1]-pos[1])*1.1**zoom+offset[1]])
             if pygame.Rect(rocket_position[0]-640,rocket_position[1]-360, 1280, 720).collidepoint(640+(rocket_position[0]-pos[0])*1.1**zoom+offset[0], 360+(rocket_position[1]-pos[1])*1.1**zoom+offset[1]):
                 break
+            for planet in self.planets:
+                if math.hypot(rocket_position[0]-planet.position[0], rocket_position[1]-planet.position[1]) < planet.radius:
+                    pygame.draw.lines(screen, (200,255,200), False, rocket_points)
+                    return
 
         for path in points:
             if len(path) > 1:

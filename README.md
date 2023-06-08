@@ -13,6 +13,5 @@ Schedule:
 List of bugs to fix:
 * You can't burn from the map screen
 * You can't stage
-* Paths are still a little broken
 * Engine realismo
 * The planets may not render right

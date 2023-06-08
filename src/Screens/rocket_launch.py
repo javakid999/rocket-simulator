@@ -12,7 +12,7 @@ class RocketLaunchScreen:
         self.ui = []
         self.text = [
             [['Good luck,', (255,255,255)], ['Agent Arnav.', (255,0,255)], ['We are counting on you to establish these', (255,255,255)], ['cheese mines', (255,255,0)], ['and restore our great nation.', (255,255,255)]],
-            [['You can do this', (255,255,255)], ['Agent Arnav!', (255,0,255)], ['All security checks on the', (255,255,255)], ['Rocket Name', (0,255,255)], ['have passed!', (255,255,255)]],
+            [['You can do this', (255,255,255)], ['Agent Arnav!', (255,0,255)], ['All security checks on the', (255,255,255)], ['Galactose I', (0,255,255)], ['have passed!', (255,255,255)]],
             [['Your rocket has taken off! Congratulations!', (255,255,255)]],
             [['We are all very proud of you,', (255,255,255)], ['Agent Arnav.', (255,0,255)], ['We wish you good luck on reaching the moon', (255,255,255)]],
             [['We are now launching our own', (255,255,255)], ['Soymilk Mk. IV', (100,255,0)], ['Hurry up', (255,255,255)], [':)', (255,0,0)]],

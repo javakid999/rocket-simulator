@@ -10,7 +10,7 @@ class Grid:
         self.parts = []
         self.engine_flames = []
         for i in range(10):
-            self.engine_flames.append(assets[''])
+            self.engine_flames.append(assets['00'+str(10+i)])
     
     def render_blueprint(self, screen, pos, mouse_pos, frame):
         surface = pygame.Surface((1000, 720))

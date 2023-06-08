@@ -13,7 +13,6 @@ class Game:
         self.time = 0
         self.frame = 0
         self.timeOnScreen = 0
-        self.world = World()
         self.clock = pygame.time.Clock()
         self.mode = 3
         self.settings = {}
@@ -37,7 +36,7 @@ class Game:
         self.update()
     
     def init_world(self):
-        self.world = World()
+        self.world = World(self.assetManager.assets)
         planet_texture = self.assetManager.generateTiledTexture('dirt', (1312,752))
         water_texture = self.assetManager.generateTiledTexture('water', (1312,752))
         moon_texture = self.assetManager.generateTiledTexture('moon', (1312,752))
