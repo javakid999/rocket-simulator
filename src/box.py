@@ -101,6 +101,9 @@ class Box:
             rotated_points.append([x*math.cos(angle_rads)-y*math.sin(angle_rads)+self.position[0], x*math.sin(angle_rads)+y*math.cos(angle_rads)+self.position[1]])
         return rotated_points
 
+    def get_fuel(self):
+        return self.grid.fuel / self.grid.fuel_capacity
+
     def do_polygons_intersect(self, other_square):
         a = self.rotate_points(self.angle)
         b = other_square.rotate_points(other_square.angle)

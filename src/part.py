@@ -16,14 +16,15 @@ class RocketPart:
         screen.blit(rotated_surface, (self.position[0]*50+offset[0], self.position[1]*50+offset[1]))
 
 class Engine(RocketPart):
-    def __init__(self, position, rotation, image):
+    def __init__(self, position, rotation, image, consumption):
         super().__init__(position, (2,2), 220, image, rotation)
         self.activated = False
+        self.consumption = consumption
+        self.firing = False
 
 class FuelTank(RocketPart):
-    def __init__(self, position, rotation, image, full):
+    def __init__(self, position, rotation, image):
         super().__init__(position, (2,2), 330, image, rotation)
-        self.full = full
 
 class Separator(RocketPart):
     def __init__(self, position, rotation, image):

@@ -16,7 +16,8 @@ class InputManager:
             '+': False,
             '-': False,
             'r': False,
-            'c': False
+            'c': False,
+            ' ': False
         }
 
     def loadInput(self):
@@ -40,7 +41,8 @@ class InputManager:
         keys_prev = {
             'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m],
             '+': self.keys[pygame.K_EQUALS], '-': self.keys[pygame.K_MINUS],
-            'r': self.keys[pygame.K_r], 'x': self.keys[pygame.K_x], 'c': self.keys[pygame.K_c]
+            'r': self.keys[pygame.K_r], 'x': self.keys[pygame.K_x], 'c': self.keys[pygame.K_c], 
+            ' ': self.keys[pygame.K_SPACE]
         }
         self.keys = pygame.key.get_pressed()
 
@@ -77,7 +79,12 @@ class InputManager:
         if self.keys[pygame.K_r] and not keys_prev['r']:
             self.key_press['r'] = True
         else:
-            self.key_press['r'] = False        
+            self.key_press['r'] = False
+
+        if self.keys[pygame.K_SPACE] and not keys_prev[' ']:
+            self.key_press[' '] = True
+        else:
+            self.key_press[' '] = False   
 
     def click_event(self, game):
         if game.mode == 0:

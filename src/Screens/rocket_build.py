@@ -5,9 +5,10 @@ from grid import Grid
 
 class BuildScreen:
     def __init__(self, assets):
-        self.ui = [Button('launch', (20, 500), (200,66), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_launch']})]
+        self.ui = [Button('launch', (20, 100), (200,66), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_launch']})]
         self.buttons = [pygame.Rect(20, 205, 40, 40), pygame.Rect(80, 205, 40, 40), pygame.Rect(20, 265, 40, 40), pygame.Rect(80, 265, 40, 40), pygame.Rect(20, 325, 40, 40), pygame.Rect(80, 325, 40, 40), pygame.Rect(20, 385, 40, 40), pygame.Rect(80, 385, 40, 40), pygame.Rect(20, 445, 40, 40)]
 
+        self.font = pygame.font.Font('./src/Assets/Font/roboto.ttf', 20)
         self.surface = pygame.Surface((1280,720))
         self.rotation = 0
         self.timeActive = 0
@@ -43,6 +44,15 @@ class BuildScreen:
         self.surface.blit(pygame.transform.scale(assets['fuel_cap'], (40,40)), self.buttons[6])
         self.surface.blit(pygame.transform.scale(assets['cheese_machine_'+str(math.floor(self.timeActive/15)%10)], (40,40)), self.buttons[7])
 
+        pygame.draw.rect(self.surface, (10,15,20), (10, 450, 150, 30))
+        self.surface.blit(self.font.render('Add stage', True, (255,255,255)), (10,450))
+        for i in range(len(world.grid.stages)):
+            color = (10,15,20)
+            if world.grid.selected_stage == i:
+                color = (40,55,60)
+            pygame.draw.rect(self.surface, color, (10, 485+i*35, 150, 30))
+            self.surface.blit(self.font.render('Stage ' + str(i+1), True, (255,255,255)), (10, 485+i*35))
+
         for item in self.ui:
             item.render(self.surface, input_manager.mouse_pos)
 
@@ -69,6 +79,16 @@ class BuildScreen:
 
         if pygame.Rect(280,0,1000,720).collidepoint(pos):
             game.world.grid.place(self.offset, pos, game.world.grid.selected_type, self.rotation, game.assetManager.assets)
+
+        if pygame.Rect(10, 450, 150, 30).collidepoint(pos):
+            game.world.grid.stages.append([])
+
+        for i in range(len(game.world.grid.stages)):
+            if pygame.Rect(10, 485+i*35, 150, 30).collidepoint(pos):
+                if game.world.grid.selected_stage == i:
+                    game.world.grid.selected_stage = -1
+                else:
+                    game.world.grid.selected_stage = i
 
         for item in self.ui:
             if item.update(pos):
