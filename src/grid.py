@@ -46,12 +46,13 @@ class Grid:
 
     def stage(self):
         self.active_stage += 1
-        #work on this 
+        for i in range(len(self.stages)):
+            self.parts[self.stages[self.active_stage][i]].activated = not self.parts[self.stages[self.active_stage][i]].activated
 
     def get_active_parts(self):
         active_parts = []
         for part in self.parts:
-            if isinstance(part (Engine, Capsule, Separator)):
+            if isinstance(part, (Engine, Capsule, Separator)):
                 if part.activated:
                     active_parts.append(part)
         return active_parts
@@ -90,7 +91,7 @@ class Grid:
         for part in self.parts:
             if isinstance(part, Engine):
                 if part.activated and part.firing:
-                    self.fuel -= 0.001*part.consumption
+                    self.fuel -= 0.003*part.consumption
 
     def place(self, offset, pos, type, rotation, assets):
         position = [math.floor((pos[0]-offset[0]-280)/50)*50, math.floor((pos[1]-offset[1])/50)*50]

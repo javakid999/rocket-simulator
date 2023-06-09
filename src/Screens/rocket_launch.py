@@ -186,6 +186,8 @@ class RocketLaunchScreen:
 
             if inputManager.key_press['m']:
                 game.mode = 2
+            if inputManager.key_press[' ']:
+                world.rocket.grid.stage()
             if inputManager.key_press['x']:
                 world.save_state()
             if not world.in_planet_atmosphere(world.planets[0]):
