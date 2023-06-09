@@ -1,3 +1,4 @@
+import random
 import pygame, math, json, os
 from perlin import PerlinNoise
 
@@ -14,6 +15,7 @@ class Planet:
         self.sea_level = sea_level
         self.points = []
         self.features = []
+        self.objects = {'rocks': [], 'trees': [], 'bushes': []}
         self.quality = 10
 
         self.atmosphere = False
@@ -45,8 +47,9 @@ class Planet:
     def get_points(self, seed):
         if not os.path.exists('./src/Saves/planet_'+str(self.id)+'.json'):
             num_points = int(self.radius * math.pi / self.quality)
-            values = PerlinNoise.generate_values(seed, 5, num_points)
+            values = PerlinNoise.generate_values(seed, 12, num_points)
             for i in range(num_points):
+                self.objects['bushes'].append((random.random() < 0.005, random.randint(0,360)))
                 feature_point = False
                 for feature in self.features:
                     if feature[1] <= i < feature[2]:
@@ -103,7 +106,7 @@ class Planet:
             distance = math.sqrt((closest_x - self.position[0]) ** 2 + (closest_y - self.position[1]) ** 2)
 
             # Check if the distance is less than or equal to the circle radius
-            if distance <= self.radius:
+            if distance <= self.radius+500:
                 return True
             else:
                 return False
@@ -112,7 +115,7 @@ class Planet:
         self.mask_surface.fill((0,0,0))
         self.mask_water.fill((0,0,0))
         if self.intersection(rect):
-            expanded_rect = pygame.Rect(rect.left-20, rect.top-20, rect.width+40, rect.height+40)
+            expanded_rect = pygame.Rect(rect.left-50, rect.top-50, rect.width+100, rect.height+100)
             points_land = []
             points_water = []
             rocket_angle = math.atan2(rocket.position[1]-self.position[1], rocket.position[0]-self.position[0])
@@ -120,14 +123,16 @@ class Planet:
             
             start_index = int(min(angles)/(math.pi*2)*len(self.points))%len(self.points)
             end_index = int(max(angles)/(math.pi*2)*len(self.points))%len(self.points)
-            start_position = [self.position[0]+(self.radius+100*self.points[start_index])*math.cos(2*math.pi*((start_index)/len(self.points))),self.position[1]+(self.radius+100*self.points[start_index])*math.sin(2*math.pi*((start_index)/len(self.points)))]
-            end_position = [self.position[0]+(self.radius+100*self.points[end_index])*math.cos(2*math.pi*((end_index)/len(self.points))),self.position[1]+(self.radius+100*self.points[end_index])*math.sin(2*math.pi*((end_index)/len(self.points)))]
-            
+
             for i in range(start_index, end_index, 1):
                 angle = 2*math.pi*((i)/len(self.points))
                 position = [self.position[0]-rect.left+(self.radius+100*self.points[i])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i])*math.sin(angle)]
                 position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
-                if expanded_rect.collidepoint(self.position[0]+self.radius*math.cos(angle),self.position[1]+self.radius*math.sin(angle)):
+
+                if self.objects['bushes'][i][0]:
+                    screen.blit(pygame.transform.rotate(self.textures['leaf'], self.objects['bushes'][i][1]), position)
+
+                if expanded_rect.collidepoint(position[0]+rect.left, position[1]+rect.top):
                     points_land.append([*position])
                     points_water.append([*position_water])
             if len(points_land) > 2:
@@ -138,37 +143,14 @@ class Planet:
                     if dist_to_corner < self.radius+self.points[int(angles[i]/(math.pi*2)*len(self.points))%len(self.points)]*100:
                         corners_inside.append(corners[i])
                 print(len(corners_inside))
-                if len(corners_inside) == 1:
-                    for i in range(len(corners_inside)):
-                        corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
-                    points_land.append(corners_inside[0])
-                    points_water.append(corners_inside[0])
-
-                elif len(corners_inside) == 2:
-                    if math.hypot(corners_inside[0][0]-start_position[0], corners_inside[0][1]-start_position[1]) > math.hypot(corners_inside[1][0]-start_position[0], corners_inside[1][1]-start_position[1]):
-                        for i in range(len(corners_inside)):
-                            corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
-                        points_land.append(corners_inside[0])
-                        points_water.append(corners_inside[0])
-                        points_land.append(corners_inside[1])
-                        points_water.append(corners_inside[1])
-                    else:
-                        for i in range(len(corners_inside)):
-                            corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
-                        points_land.append(corners_inside[1])
-                        points_water.append(corners_inside[1])
-                        points_land.append(corners_inside[0])
-                        points_water.append(corners_inside[0])
-
-                elif len(corners_inside) == 3:
-                    for i in range(len(corners_inside)-1):
-                        for j in range(len(corners_inside)-i-1):
-                            if math.hypot(corners_inside[j][0]-end_position[0], corners_inside[j][1]-end_position[1]) > math.hypot(corners_inside[j+1][0]-end_position[0], corners_inside[j+1][1]-end_position[1]):
-                                corners_inside[j], corners_inside[j + 1] = corners_inside[j + 1], corners_inside[j]
-                    for i in range(len(corners_inside)):
-                        corners_inside[i] = [corners_inside[i][0]-rect.left, corners_inside[i][1]-rect.top]
-                    points_land.append(*corners_inside)
-                    points_water.append(*corners_inside)
+                for i in range(len(corners_inside)-1):
+                    for j in range(len(corners_inside)-i-1):
+                        if math.atan2(corners_inside[j][1]-rect.centery, corners_inside[j][0]-rect.centerx) > math.atan2(corners_inside[j+1][1]-rect.centery, corners_inside[j+1][0]-rect.centerx):
+                            corners_inside[j], corners_inside[j + 1] = corners_inside[j + 1], corners_inside[j]
+                
+                for corner in corners_inside:
+                    points_land.append((corner[0]-rect.left, corner[1]-rect.top))
+                    points_water.append((corner[0]-rect.left, corner[1]-rect.top))
 
                 pygame.draw.polygon(self.mask_water, (255,255,255), points_water)
                 pygame.draw.polygon(self.mask_surface, (255,255,255), points_land)

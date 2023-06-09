@@ -5,7 +5,7 @@ class PerlinNoise:
     def generate_values(seed, depth, num):
         values = []
         for i in range(num):
-            values.append(PerlinNoise.fbm([0,i/10], seed, 0.5, 1, depth))
+            values.append(PerlinNoise.fbm([0,i/5], seed, [48,0,8,4,1,2**-2,2**-3,2**-4,2**-5,2**-6,2**-7,2**-8,2**-9], depth))
         return values
 
     @staticmethod
@@ -47,11 +47,9 @@ class PerlinNoise:
         return PerlinNoise.sserp(t,b,uv[1] % 1) + 0.5
     
     @staticmethod
-    def fbm(uv, seed, contribution, scale, octaves):
+    def fbm(uv, seed, contributions, octaves):
         sum = 0
         for n in range(octaves):
-                    sum += PerlinNoise.perlinNoise([uv[0]*scale+scale,uv[1]*scale+scale], seed) * contribution
-                    contribution *= 0.5
-                    scale *= 2
+                    sum += PerlinNoise.perlinNoise([uv[0]*2**(n-6),uv[1]*2**(n-6)], seed) * contributions[n]
                     uv = PerlinNoise.rotate(uv, 1.2)
-        return min(max(sum,0),1)-0.5
+        return (sum-30)/5

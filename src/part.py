@@ -16,9 +16,10 @@ class RocketPart:
         screen.blit(rotated_surface, (self.position[0]*50+offset[0], self.position[1]*50+offset[1]))
 
 class Engine(RocketPart):
-    def __init__(self, position, rotation, image, consumption):
+    def __init__(self, position, rotation, image, consumption, force):
         super().__init__(position, (2,2), 220, image, rotation)
         self.activated = False
+        self.force = force
         self.consumption = consumption
         self.firing = False
 

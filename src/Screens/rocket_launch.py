@@ -173,8 +173,8 @@ class RocketLaunchScreen:
                             if isinstance(part, Engine):
                                 if part.activated:
                                     part.firing = True
-                                    forces.append([(0,0),(40000*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-40000*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
-                        world.rocket.grid.update_fuel()
+                                    forces.append([(0,0),(part.force*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-part.force*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
+                        #world.rocket.grid.update_fuel()
                 if inputManager.keys[pygame.K_a]:
                     forces.append([(0,1000),(-1000,0)])
                     forces.append([(0,-1000),(1000,0)])

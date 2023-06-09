@@ -45,8 +45,9 @@ class Grid:
         screen.blit(surface, (280,0))
 
     def stage(self):
+        if self.active_stage == len(self.stages)-1: return
         self.active_stage += 1
-        for i in range(len(self.stages)):
+        for i in range(len(self.stages[self.active_stage])):
             self.parts[self.stages[self.active_stage][i]].activated = not self.parts[self.stages[self.active_stage][i]].activated
 
     def get_active_parts(self):
@@ -108,16 +109,19 @@ class Grid:
 
         for part in self.parts:
             if part.position[0] == position[0] and part.position[1] == position[1]:
+                for i in range(len(self.stages)):
+                    if self.stages[i].count(self.parts.index(part)) > 0:
+                        self.stages[i].remove(self.parts.index(part))
                 self.parts.remove(part)
                 break
 
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             
             if type == 1:
-                self.parts.append(Engine(position, rotation, assets['engine_strong'], 1.4))
+                self.parts.append(Engine(position, rotation, assets['engine_strong'], 1.4, 40000))
 
             if type == 2:
-                self.parts.append(Engine(position, rotation, assets['engine_weak'], 1.1))
+                self.parts.append(Engine(position, rotation, assets['engine_weak'], 0.5, 20000))
                 
             if type == 3:
                 self.parts.append(FuelTank(position, rotation, assets['fuel_tank']))

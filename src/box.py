@@ -58,8 +58,8 @@ class Box:
                     if dist_to_center < surface_radius:
                         self.position[0] += math.cos(point_angle)*(surface_radius-dist_to_center)
                         self.position[1] += math.sin(point_angle)*(surface_radius-dist_to_center)
-                        self.linear_velocity[0] *= 0.7
-                        self.linear_velocity[1] *= 0.7
+                        self.linear_velocity[0] = 0.7*(self.linear_velocity[0]+planet.linear_velocity[0])
+                        self.linear_velocity[1] = 0.7*(self.linear_velocity[1]+planet.linear_velocity[1])
 
 
         if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(world.platform):

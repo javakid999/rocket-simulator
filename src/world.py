@@ -69,24 +69,20 @@ class World:
     def load_state(self, name):
         state = json.load(open('./src/Saves/save_states/'+name+'.json'))
         self.rocket.position = state['rocket']['position']
-        self.rocket.linear_velocity = state['rocket']['linear_velocity']
-        self.rocket.linear_acceleration = [0,0]
         self.rocket.angle = state['rocket']['angle']
-        self.rocket.angular_velocity = state['rocket']['angular_velocity']
-        self.rocket.angular_acceleration = 0
+
         for i in range(len(self.planets)):
             self.planets[i].position = state['planets'][str(self.planets[i].id)]['position']
             self.planets[i].linear_velocity = state['planets'][str(self.planets[i].id)]['linear_velocity']
-        self.update([])
-        self.rocket.position = state['rocket']['position']
+
+        for planet in self.planets:
+            planet.update(self)
+        self.rocket.update(self, [])
+
         self.rocket.linear_velocity = state['rocket']['linear_velocity']
         self.rocket.linear_acceleration = [0,0]
-        self.rocket.angle = state['rocket']['angle']
         self.rocket.angular_velocity = state['rocket']['angular_velocity']
         self.rocket.angular_acceleration = 0
-        for i in range(len(self.planets)):
-            self.planets[i].position = state['planets'][str(self.planets[i].id)]['position']
-            self.planets[i].linear_velocity = state['planets'][str(self.planets[i].id)]['linear_velocity']
 
     def time_step_decrease(self):
         if self.time_step == 1:
@@ -149,7 +145,7 @@ class World:
         self.camera.y = self.rocket.position[1] - self.camera.height/2
         
         for planet in self.planets:
-            planet.render(screen, self.camera, self.rocket, time_active)
+            planet.render_experimental(screen, self.camera, self.rocket, time_active)
         
         pygame.draw.rect(screen, (128,128,128), (self.platform.left-self.camera.left,self.platform.top-self.camera.top,self.platform.width,self.platform.height))
         self.rocket.render(screen, self.camera, time_active)
@@ -251,6 +247,9 @@ class World:
                 break
             for planet in self.planets:
                 if math.hypot(rocket_position[0]-planet.position[0], rocket_position[1]-planet.position[1]) < planet.radius:
+                    for path in points:
+                        if len(path) > 1:
+                            pygame.draw.lines(screen, (255,255,255), False, path)
                     pygame.draw.lines(screen, (200,255,200), False, rocket_points)
                     return
 
