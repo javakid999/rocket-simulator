@@ -40,6 +40,7 @@ class Planet:
         planet_data['quality'] = self.quality
         planet_data['features'] = self.features
         planet_data['points'] = self.points
+        planet_data['objects'] = self.objects
         
         with open('./src/Saves/planet_'+str(self.id)+'.json', 'w') as outfile:
             json.dump(planet_data, outfile)
@@ -49,15 +50,16 @@ class Planet:
             num_points = int(self.radius * math.pi / self.quality)
             values = PerlinNoise.generate_values(seed, 12, num_points)
             for i in range(num_points):
-                self.objects['bushes'].append((random.random() < 0.005, random.randint(0,360)))
                 feature_point = False
                 for feature in self.features:
                     if feature[1] <= i < feature[2]:
                         self.points.append(feature[3][i-feature[1]])
+                        self.objects['bushes'].append([random.random() < 0.005, random.randint(0,360)])
                         feature_point = True
                         break
                 if feature_point == False:
                         self.points.append(values[i])
+                        self.objects['bushes'].append([random.random() < 0.005, random.randint(0,360)])
 
             self.save_points()
         else:
@@ -65,6 +67,7 @@ class Planet:
             self.features = planet['features']
             self.quality = planet['quality']
             self.points = planet['points']
+            self.objects = planet['objects']
 
     def update(self, world):
         dt = world.time_step
@@ -129,6 +132,7 @@ class Planet:
                 position = [self.position[0]-rect.left+(self.radius+100*self.points[i])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i])*math.sin(angle)]
                 position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
 
+                print(len(self.objects['bushes']))
                 if self.objects['bushes'][i][0]:
                     screen.blit(pygame.transform.rotate(self.textures['leaf'], self.objects['bushes'][i][1]), position)
 
