@@ -93,6 +93,7 @@ class BuildScreen:
         for item in self.ui:
             if item.update(pos):
                 if item.id == 'launch':
-                    game.world.grid.convert_to_launch()
+                    for grid in game.world.grid.separate_parts():
+                        game.world.rockets.append(Box(grid, [700+grid.position[0]*15,250+grid.position[1]*15], [grid.size[0]*15, grid.size[1]*15], 1, 0, 0))
                     game.mode = 1
                     game.soundManager.playMusic('free_bird', 2000)

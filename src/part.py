@@ -24,8 +24,9 @@ class Engine(RocketPart):
         self.firing = False
 
 class FuelTank(RocketPart):
-    def __init__(self, position, rotation, image):
+    def __init__(self, position, rotation, image, fuel):
         super().__init__(position, (2,2), 330, image, rotation)
+        self.fuel = 1
 
 class Separator(RocketPart):
     def __init__(self, position, rotation, image):

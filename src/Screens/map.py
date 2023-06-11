@@ -57,7 +57,7 @@ class MapScreen:
                 pass
 
         tw = world.get_thrust() / world.get_gravitational_force()
-        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Time Step: ' + str(round(world.time_step, 2)), False, (255,255,255)), (0,0))
+        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.rockets[world.selected_rocket].get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Time Step: ' + str(round(world.time_step, 2)), False, (255,255,255)), (0,0))
 
         if inputManager.key_press['c']:
             self.quicksave_menu = not self.quicksave_menu

@@ -39,16 +39,16 @@ class RocketLaunchScreen:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
 
-        if self.dialogue_state == 2 and world.get_altitude(world.planets[0]) >= 2000:
+        if self.dialogue_state == 2 and world.rockets[world.selected_rocket].get_altitude(world.planets[0]) >= 2000:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
 
-        if self.dialogue_state == 3 and world.get_altitude(world.planets[0]) >= 10000:
+        if self.dialogue_state == 3 and world.rockets[world.selected_rocket].get_altitude(world.planets[0]) >= 10000:
             sound_manager.playMusic('everything', 6000)
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
 
-        if self.dialogue_state == 4 and world.get_altitude(world.planets[0]) >= 25000:
+        if self.dialogue_state == 4 and world.rockets[world.selected_rocket].get_altitude(world.planets[0]) >= 25000:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
 
@@ -165,32 +165,35 @@ class RocketLaunchScreen:
                 self.surface.blit(self.font.render(save[0:save.rindex('.')], True, (255,255,255)), (520, 180+i*60))
         else:
             forces = []
+            for rocket in world.rockets:
+                forces.append([])
 
             if world.time_step == 1/60:
+                rocket = world.rockets[world.selected_rocket]
                 if inputManager.keys[pygame.K_w]:
-                    if world.rocket.get_fuel() > 0:
+                    if rocket.get_fuel() > 0:
                         for part in world.grid.get_active_parts():
                             if isinstance(part, Engine):
                                 if part.activated:
                                     part.firing = True
-                                    forces.append([(0,0),(part.force*math.sin(world.rocket.angle*math.pi/180+part.rotation*math.pi/2),-part.force*math.cos(world.rocket.angle*math.pi/180+part.rotation*math.pi/2))])
-                        #world.rocket.grid.update_fuel()
+                                    forces[world.selected_rocket].append([(0,0),(part.force*math.sin(rocket.angle*math.pi/180+part.rotation*math.pi/2),-part.force*math.cos(rocket.angle*math.pi/180+part.rotation*math.pi/2))])
+                        #rocket.grid.update_fuel()
                 if inputManager.keys[pygame.K_a]:
-                    forces.append([(0,1000),(-1000,0)])
-                    forces.append([(0,-1000),(1000,0)])
+                    forces[world.selected_rocket].append([(0,1000),(-1000,0)])
+                    forces[world.selected_rocket].append([(0,-1000),(1000,0)])
                 if inputManager.keys[pygame.K_d]:
-                    forces.append([(0,1000),(1000,0)])
-                    forces.append([(0,-1000),(-1000,0)])
+                    forces[world.selected_rocket].append([(0,1000),(1000,0)])
+                    forces[world.selected_rocket].append([(0,-1000),(-1000,0)])
             
             world.update(forces)
 
             if inputManager.key_press['m']:
                 game.mode = 2
             if inputManager.key_press[' ']:
-                world.rocket.grid.stage()
+                world.rockets[world.selected_rocket].grid.stage()
             if inputManager.key_press['x']:
                 world.save_state()
-            if not world.in_planet_atmosphere(world.planets[0]):
+            if not world.rockets[world.selected_rocket].in_planet_atmosphere(world.planets[0]):
                 if inputManager.key_press['+']:
                     world.time_step_increase()
                 if inputManager.key_press['-']:
@@ -203,8 +206,8 @@ class RocketLaunchScreen:
 
             self.advance_dialogue(assets, world, game.soundManager)
 
-        tw = world.get_thrust() / world.get_gravitational_force()
-        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Speed: ' + str(round(world.time_step*60, 2)) + '      Fuel: ' + str(max(round(world.rocket.get_fuel()*100, 2),0)) + '%', False, (255,255,255)), (0,0))
+        tw = world.rockets[world.selected_rocket].get_thrust() / world.rockets[world.selected_rocket].get_gravitational_force(world.planets)
+        self.surface.blit(self.font.render('Earth Altitude: ' + str(math.floor(world.rockets[world.selected_rocket].get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Speed: ' + str(round(world.time_step*60, 2)) + '      Fuel: ' + str(max(round(world.rockets[world.selected_rocket].get_fuel()*100, 2),0)) + '%', False, (255,255,255)), (0,0))
 
         if inputManager.key_press['c']:
             self.quicksave_menu = not self.quicksave_menu

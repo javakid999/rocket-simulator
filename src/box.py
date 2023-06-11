@@ -1,5 +1,6 @@
 import pygame, math
 from GameManagers.assetmanager import AssetManager
+from part import Engine
 
 class Box:
     def __init__(self, grid, position, size, mass, id, static=0):
@@ -23,7 +24,7 @@ class Box:
         self.planet_point_index = 0
 
     def update(self, world, forces):
-        self.size = [world.grid.size[0]*15, world.grid.size[1]*15]
+        self.size = [self.grid.size[0]*15, self.grid.size[1]*15]
         mass = 0
         for i in range(len(world.grid.parts)):
             mass += world.grid.parts[i].mass
@@ -58,8 +59,9 @@ class Box:
                     if dist_to_center < surface_radius:
                         self.position[0] += math.cos(point_angle)*(surface_radius-dist_to_center)
                         self.position[1] += math.sin(point_angle)*(surface_radius-dist_to_center)
-                        self.linear_velocity[0] = 0.7*(self.linear_velocity[0]+planet.linear_velocity[0])
-                        self.linear_velocity[1] = 0.7*(self.linear_velocity[1]+planet.linear_velocity[1])
+                        self.linear_velocity[0] = 0.7*(self.linear_velocity[0]-planet.linear_velocity[0])+planet.linear_velocity[0]
+                        self.linear_velocity[1] = 0.7*(self.linear_velocity[1]-planet.linear_velocity[1])+planet.linear_velocity[1]
+                        self.angular_velocity *= 0.8
 
 
         if pygame.Rect(self.position[0]-self.size[0]/2,self.position[1]-self.size[1]/2,*self.size).colliderect(world.platform):
@@ -87,8 +89,9 @@ class Box:
         
         rotated_image = pygame.transform.rotate(surface, -self.angle)
         screen.blit(rotated_image, (self.position[0]-camera.left-rotated_image.get_width()/2,self.position[1]-camera.top-rotated_image.get_height()/2))
+        
         for point in self.rotate_points(self.angle):
-            pygame.draw.rect(screen, (0,0,255), (point[0]-2-camera.left,point[1]-2-camera.top,4,4))
+           pygame.draw.rect(screen, (0,0,255), (point[0]-2-camera.left,point[1]-2-camera.top,4,4))
         pygame.draw.line(screen, (0,255,0), (self.position[0]-camera.left, self.position[1]-camera.top), (self.position[0]-camera.left-50*math.sin(self.angle*math.pi/180), self.position[1]-camera.top+50*math.cos(self.angle*math.pi/180)))
 
     def rotate_points(self, angle):
@@ -103,6 +106,35 @@ class Box:
 
     def get_fuel(self):
         return self.grid.fuel / self.grid.fuel_capacity
+
+    def get_altitude(self, planet):
+        dist_sq = (self.position[0]-planet.position[0])**2+(self.position[1]-planet.position[1])**2
+        return math.sqrt(dist_sq)-planet.radius
+    
+    def in_planet_atmosphere(self, planet):
+        if not planet.atmosphere: return False
+        if math.hypot(planet.position[0]-self.position[0], planet.position[1]-self.position[1])-planet.radius < planet.atmosphere_size: return True
+        return False
+    
+    def get_thrust(self):
+        thrust = 0
+        for part in self.grid.parts:
+            if isinstance(part, Engine):
+                thrust += 40000
+        return thrust
+
+    def get_gravitational_force(self, planets):
+        forces = []
+        for planet in planets:
+            dist = math.hypot(self.position[0]-planet.position[0], self.position[1]-planet.position[1])
+            vector_planet = [(planet.position[0]-self.position[0])/dist, (planet.position[1]-self.position[1])/dist]
+            gravitational_force = 6.67*10**-10*planet.mass*self.mass/(dist*dist)
+            forces.append([vector_planet[0]*gravitational_force, vector_planet[1]*gravitational_force])
+        sum = [0,0]
+        for force in forces:
+            sum[0] += force[0]
+            sum[1] += force[1]
+        return math.hypot(*sum)
 
     def do_polygons_intersect(self, other_square):
         a = self.rotate_points(self.angle)

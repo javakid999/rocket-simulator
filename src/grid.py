@@ -4,8 +4,9 @@ import pygame
 from part import Capsule, CheeseMachine, Engine, FuelTank, Separator
 
 class Grid:
-    def __init__(self, assets):
+    def __init__(self):
         self.size = (10,25)
+        self.position = (0,0)
         self.selected_type = 0
         self.parts = []
 
@@ -15,10 +16,13 @@ class Grid:
 
         self.fuel_capacity = 0.1
         self.fuel = 0.1
-        
-        self.engine_flames = []
-        for i in range(10):
-            self.engine_flames.append(assets['00'+str(10+i)])
+
+    def add_parts(self, parts):
+        for part in parts:
+            self.parts.append(part)
+            if isinstance(part, FuelTank): 
+                self.fuel += part.fuel
+                self.fuel_capacity += part.fuel
 
     def render_blueprint(self, screen, pos, mouse_pos, frame):
         surface = pygame.Surface((1000, 720))
@@ -79,6 +83,51 @@ class Grid:
             self.parts[i].position[0] -= min_x
             self.parts[i].position[1] -= min_y
         self.size = (max_x-min_x+1, max_y-min_y+1)
+        self.position = (min_x, min_y)
+
+    def separate_parts(self):
+        parts = []
+        groups = []
+        for i in range(int(self.size[1])):
+            parts.append([])
+            for j in range(int(self.size[0])):
+                parts[i].append(False)
+        for i in range(len(self.parts)):
+            parts[int(self.parts[i].position[1])][int(self.parts[i].position[0])] = i+1
+
+        for i in range(len(self.parts)):
+            groups.append(self.flood_fill(parts, set(), int(self.parts[i].position[0]), int(self.parts[i].position[1]), 0))
+
+        result = list()
+        for item in groups:
+            if item not in result and item != None:
+                result.append(item)
+        groups = result
+
+        grids = []
+        for group in groups:
+            parts_add = []
+            for i in group:
+                parts_add.append(self.parts[i-1])
+            grid = Grid()
+            grid.add_parts(parts_add)
+            grid.convert_to_launch()
+            grids.append(grid)
+        
+        return grids
+
+    def flood_fill(self, parts, group, x, y, depth = 0):
+        if x < 0 or x >= len(parts[0]) or y < 0 or y >= len(parts):
+            return
+        if parts[y][x] == False or parts[y][x] in group:
+            return
+        group.add(parts[y][x])
+        self.flood_fill(parts, group, x+1, y, depth + 1)
+        self.flood_fill(parts, group, x-1, y, depth + 1)
+        self.flood_fill(parts, group, x, y+1, depth + 1)
+        self.flood_fill(parts, group, x, y-1, depth + 1)      
+        if depth == 0:
+            return group
 
     def render_launch(self, frame):
         surface = pygame.Surface((self.size[0]*50, self.size[1]*50), pygame.SRCALPHA)
@@ -124,7 +173,7 @@ class Grid:
                 self.parts.append(Engine(position, rotation, assets['engine_weak'], 0.5, 20000))
                 
             if type == 3:
-                self.parts.append(FuelTank(position, rotation, assets['fuel_tank']))
+                self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))
                 self.fuel_capacity += 1
                 self.fuel += 1
 
@@ -135,7 +184,7 @@ class Grid:
                 self.parts.append(Capsule(position, rotation, assets['capsule']))
 
             if type == 6:
-                self.parts.append(FuelTank(position, rotation, assets['fuel_cap']))
+                self.parts.append(FuelTank(position, rotation, assets['fuel_cap'], 0.5))
                 self.fuel_capacity += 0.5
                 self.fuel += 0.5
 

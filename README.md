@@ -14,4 +14,8 @@ List of bugs to fix:
 * You can't burn from the map screen
 * The planets may not render right
 * Overdraw Issue
-* Plantas
+* Center of mass 
+* Staging Separators
+* Engine flames
+* Finish Dialogue
+* Get playtesters

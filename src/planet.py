@@ -15,7 +15,7 @@ class Planet:
         self.sea_level = sea_level
         self.points = []
         self.features = []
-        self.objects = {'rocks': [], 'trees': [], 'bushes': []}
+        self.objects = []
         self.quality = 10
 
         self.atmosphere = False
@@ -54,12 +54,20 @@ class Planet:
                 for feature in self.features:
                     if feature[1] <= i < feature[2]:
                         self.points.append(feature[3][i-feature[1]])
-                        self.objects['bushes'].append([random.random() < 0.005, random.randint(0,360)])
+                        self.objects.append({
+                                'bush': [random.random() < 0.04, random.randint(0,1)],
+                                'rock': [random.random() < 0.05, random.randint(0,3)],
+                                'rotation': random.randint(0,360)
+                            })
                         feature_point = True
                         break
                 if feature_point == False:
                         self.points.append(values[i])
-                        self.objects['bushes'].append([random.random() < 0.005, random.randint(0,360)])
+                        self.objects.append({
+                                'bush': [random.random() < 0.04, random.randint(0,1)],
+                                'rock': [random.random() < 0.05, random.randint(0,3)],
+                                'rotation': random.randint(0,360)
+                            })
 
             self.save_points()
         else:
@@ -132,9 +140,11 @@ class Planet:
                 position = [self.position[0]-rect.left+(self.radius+100*self.points[i])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i])*math.sin(angle)]
                 position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
 
-                print(len(self.objects['bushes']))
-                if self.objects['bushes'][i][0]:
-                    screen.blit(pygame.transform.rotate(self.textures['leaf'], self.objects['bushes'][i][1]), position)
+                object_position = [self.position[0]-rect.left+(self.radius+100*self.points[i]+self.radius/21233)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i]+self.radius/21233)*math.sin(angle)]
+                if self.objects[i]['bush'][0] and self.textures['leaf'] != -1:
+                    screen.blit(pygame.transform.rotate(self.textures['leaf'][self.objects[i]['bush'][1]], self.objects[i]['rotation']), object_position)
+                if self.objects[i]['rock'][0] and self.textures['rock'] != -1:
+                    screen.blit(pygame.transform.rotate(self.textures['rock'][self.objects[i]['rock'][1]], self.objects[i]['rotation']), object_position)
 
                 if expanded_rect.collidepoint(position[0]+rect.left, position[1]+rect.top):
                     points_land.append([*position])
@@ -146,15 +156,15 @@ class Planet:
                     dist_to_corner = math.hypot(corners[i][0]-self.position[0], corners[i][1]-self.position[1])
                     if dist_to_corner < self.radius+self.points[int(angles[i]/(math.pi*2)*len(self.points))%len(self.points)]*100:
                         corners_inside.append(corners[i])
-                print(len(corners_inside))
+
                 for i in range(len(corners_inside)-1):
                     for j in range(len(corners_inside)-i-1):
                         if math.atan2(corners_inside[j][1]-rect.centery, corners_inside[j][0]-rect.centerx) > math.atan2(corners_inside[j+1][1]-rect.centery, corners_inside[j+1][0]-rect.centerx):
                             corners_inside[j], corners_inside[j + 1] = corners_inside[j + 1], corners_inside[j]
                 
                 for corner in corners_inside:
-                    points_land.append((corner[0]-rect.left, corner[1]-rect.top))
-                    points_water.append((corner[0]-rect.left, corner[1]-rect.top))
+                    points_land.append((min(1280,max(0,corner[0]-rect.left)), min(720,max(0,corner[1]-rect.top))))
+                    points_water.append((min(1280,max(0,corner[0]-rect.left)), min(720,max(0,corner[1]-rect.top))))
 
                 pygame.draw.polygon(self.mask_water, (255,255,255), points_water)
                 pygame.draw.polygon(self.mask_surface, (255,255,255), points_land)
