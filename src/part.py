@@ -6,6 +6,7 @@ class RocketPart:
         self.size = size
         self.mass = mass
         self.image = image
+        self.activated = False
         self.rotation = rotation
 
         self.part_surface = pygame.Surface((50,50), pygame.SRCALPHA)

@@ -46,6 +46,10 @@ class MainMenuScreen:
                 if item.id in ['volume', 'back', 'fullscreen']:
                     item.render(self.surface, pos)
                     self.surface.blit(pygame.transform.scale(assets['text_volume'], (300,100)), (200, 460))
+            if self.menuState.activeState == 'credits':
+                self.surface.blit(assets['credits'], (400,300))
+                if item.id == 'back':
+                    item.render(self.surface, pos)
 
         screen.blit(self.surface, (0,0))
         self.timeActive += 1
@@ -60,7 +64,7 @@ class MainMenuScreen:
                     if item.id == 'options':
                         self.menuState.to('options')
                     if item.id == 'credits':
-                        pass
+                        self.menuState.to('credits')
                 if self.menuState.activeState == 'options':
                     if item.id == 'back':
                         self.menuState.to('title')
@@ -68,3 +72,6 @@ class MainMenuScreen:
                         game.soundManager.setVolume(item.value)
                     if item.id == 'fullscreen':
                         pygame.display.toggle_fullscreen()
+                if self.menuState.activeState == 'credits':
+                    if item.id == 'back':
+                        self.menuState.to('title')

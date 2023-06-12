@@ -30,7 +30,7 @@ class RocketLaunchScreen:
 
         self.timeActive = 0
 
-    def advance_dialogue(self, assets, world, sound_manager):
+    def advance_dialogue(self, assets, world, sound_manager, game):
         if self.dialogue_state == 0 and self.timeActive == 200:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
@@ -67,6 +67,11 @@ class RocketLaunchScreen:
         if self.dialogue_state == 8 and world.rockets[world.selected_rocket].get_altitude(world.planets[1]) <= 300:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
+
+        if self.dialogue_state == 9 and self.timeActive-self.dialogue_time >= 720:
+            game.renderer.screens['intro'].menuState.to('4')
+            game.soundManager.playMusic('cipher', 3000)
+            game.mode = 4
 
         if self.dialogue_state == 1 and self.timeActive-self.dialogue_time < 600:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
@@ -225,7 +230,7 @@ class RocketLaunchScreen:
             for item in self.ui:
                 pass
 
-            self.advance_dialogue(assets, world, game.soundManager)
+            self.advance_dialogue(assets, world, game.soundManager, game)
 
         tw = world.rockets[world.selected_rocket].get_thrust() / world.rockets[world.selected_rocket].get_gravitational_force(world.planets)
         self.surface.blit(self.font.render('Earth Altitude: ' + str(math.floor(world.rockets[world.selected_rocket].get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Speed: ' + str(round(world.time_step*60, 2)) + '      Fuel: ' + str(max(round(world.rockets[world.selected_rocket].get_fuel()*100, 2),0)) + '%', False, (255,255,255)), (0,0))

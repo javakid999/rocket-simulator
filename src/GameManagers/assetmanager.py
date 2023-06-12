@@ -5,10 +5,10 @@ class AssetManager:
         self.assets = {}
         self.assetList = [['./src/Assets/Images/cheese.png',(50,50)], ['./src/Assets/Images/background.jpg',-1], ['./src/Assets/Images/title.png',(600,100)], ['./src/Assets/Images/dirt.png', (32,32)], ['./src/Assets/Images/water.jpg', (32,32)],
                           ['./src/Assets/Images/button.png', -1], ['./src/Assets/Images/button_highlight.png', -1], ['./src/Assets/Images/text_continue.png', -1], ['./src/Assets/Images/text_credits.png', -1], ['./src/Assets/Images/text_start.png', -1], ['./src/Assets/Images/text_options.png', -1],
-                          ['./src/Assets/Images/cheese_water.jpg', (32,32)], ['./src/Assets/Images/moon.jpg', (32,32)], ['./src/Assets/Images/cutscene_1.png', (640,640)], ['./src/Assets/Images/cutscene_2.png', (640,640)], ['./src/Assets/Images/cutscene_3.png', (640,640)], 
-                          ['./src/Assets/Images/cutscene_4.png', (640,640)], ['./src/Assets/Images/cutscene_5.jpg', (640,640)], ['./src/Assets/Images/cutscene_6.jpg', (640,640)], ['./src/Assets/Images/president_dialogue.png', (100,100)], ['./src/Assets/Images/soviet_dialogue.png', (100,100)],
+                          ['./src/Assets/Images/cheese_water.jpg', (32,32)], ['./src/Assets/Images/moon.jpg', (32,32)],
+                          ['./src/Assets/Images/cutscene', (640,640)], ['./src/Assets/Images/president_dialogue.png', (100,100)], ['./src/Assets/Images/soviet_dialogue.png', (100,100)],
                           ['./src/Assets/Images/frog.jpg', (100,100)], ['./src/Assets/Images/engineer_dialogue.png', (100,100)], ['./src/Assets/Images/text_launch.png', -1], ['./src/Assets/Images/slider_ball.png', -1], ['./src/Assets/Images/slider_empty.png', -1], ['./src/Assets/Images/slider_full.png', -1], ['./src/Assets/Images/text_volume.png', -1], ['./src/Assets/Images/text_fullscreen.png', -1],
-                          ['./src/Assets/Images/text_back.png', -1], ['./src/Assets/Images/rocket_parts', (50,50)], ['./src/Assets/Images/engine_flames', (50,50)], ['./src/Assets/Images/objects', (50,50)]
+                          ['./src/Assets/Images/text_back.png', -1], ['./src/Assets/Images/rocket_parts', (50,50)], ['./src/Assets/Images/engine_flames', (50,50)], ['./src/Assets/Images/objects', (50,50)], ['./src/Assets/Images/credits.png', -1]
                           ]
 
     def loadAssets(self):

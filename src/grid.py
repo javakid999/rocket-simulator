@@ -115,15 +115,12 @@ class Grid:
             grid.add_parts(parts_add)
             grid.convert_to_launch()
             stages = []
-            print(group)
-            print(self.stages)
             for i in range(len(self.stages)):
                 stages.append([])
                 for num in self.stages[i]:
                     if (num+1) in group:
                         stages[i].append(num)
             grid.stages = stages
-            print(stages)
             grids.append(grid)
         return grids
 
@@ -161,7 +158,7 @@ class Grid:
         for part in self.parts:
             if isinstance(part, Engine):
                 if part.activated and part.firing:
-                    self.fuel -= 0.003*part.consumption
+                    self.fuel -= 0.001*part.consumption
 
     def place(self, offset, pos, type, rotation, assets):
         position = [math.floor((pos[0]-offset[0]-280)/50)*50, math.floor((pos[1]-offset[1])/50)*50]

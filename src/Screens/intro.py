@@ -9,10 +9,13 @@ class IntroScreen:
         self.menuState = StateMachine()
         self.menuState.addState('1', ['2'], True)
         self.menuState.addState('2', ['3'])
-        self.menuState.addState('3', [])
+        self.menuState.addState('3', ['4'])
+        self.menuState.addState('4', ['1'])
         self.text = [[['The year is 20XX. Global cheese reserves are at an all time low ever since the last cow jumped over the moon 71 years ago.', (255,255,255)]],
                      [['To prevent the imminent collapse of these Great United States, we have tasked you,', (255,255,255)], ['Agent Arnav', (255,0,255)], ['with the mission of reestablishing the lunar cheese mines.', (255,255,255)]],
-                     [['Of course, we will provide you with the necessary resources and supplies, as well as the materials for your', (255,255,255)], ['Galactose I', (0,255,255)], ['. Good luck, Agent. You are our only hope.', (255,255,255)]]]
+                     [['Of course, we will provide you with the necessary resources and supplies, as well as the materials for your', (255,255,255)], ['Galactose I', (0,255,255)], ['. Good luck, Agent. You are our only hope.', (255,255,255)]],
+                     [['Congratulations! Your', (255,255,255)], ['Galactose I', (0,255,255)], ['Has reached the moon. You will be paid handsomly :)', (255,255,255)]]
+                    ]
 
         self.ui = [
             Button('continue', (490, 300), (300,100), {'default': assets['button'], 'hover': assets['button_highlight'], 'text': assets['text_continue']}),
@@ -93,6 +96,10 @@ class IntroScreen:
             self.surface.blit(self.render_scroll(self.text[2], self.timeActive), (0,640))
             self.surface.blit(assets['cutscene_5'], (0,0))
             self.surface.blit(assets['cutscene_6'], (640, 0))
+        if self.menuState.activeState == '4':
+            self.surface.blit(self.render_scroll(self.text[3], self.timeActive), (0,640))
+            self.surface.blit(assets['cutscene_7'], (0,0))
+            self.surface.blit(assets['cutscene_8'], (640, 0))
 
         for item in self.ui:
             if self.timeActive > 400:
@@ -112,5 +119,9 @@ class IntroScreen:
                         self.menuState.to('3')
                         self.timeActive = 0
                     elif self.menuState.activeState == '3':
+                        self.timeActive = 0
                         game.mode = 3
                         game.soundManager.playMusic('bored_to_bits', 2000)
+                    elif self.menuState.activeState == '4':
+                        self.menuState.to('1')
+                        game.mode = 0

@@ -5,7 +5,6 @@ List of things to do:
 * Changing View of planets and rockets
 * Floating rocks on moon
 * Planets not rendering enough
-* Add credits and end screen
 
 List of known issues:
 * Planets do not render very well
