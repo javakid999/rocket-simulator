@@ -145,6 +145,9 @@ class Planet:
                     screen.blit(pygame.transform.rotate(self.textures['leaf'][self.objects[i]['bush'][1]], self.objects[i]['rotation']), object_position)
                 if self.objects[i]['rock'][0] and self.textures['rock'] != -1:
                     screen.blit(pygame.transform.rotate(self.textures['rock'][self.objects[i]['rock'][1]], self.objects[i]['rotation']), object_position)
+                if i == 150205 and self.textures['frog'] != -1:
+                    screen.blit(self.textures['frog'], (object_position[0], object_position[1]-65))
+
 
                 if expanded_rect.collidepoint(position[0]+rect.left, position[1]+rect.top):
                     points_land.append([*position])
@@ -266,6 +269,7 @@ class Planet:
             pygame.draw.circle(screen, (40,40,40), (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), (self.radius+self.atmosphere_size)*1.1**zoom)
         pygame.draw.circle(screen, self.map_color, (640+(self.position[0]-pos[0])*1.1**zoom+offset[0],360+(self.position[1]-pos[1])*1.1**zoom+offset[1]), self.radius*1.1**zoom)
         for feature in self.features:
+            print(self.features)
             position = (self.position[0]+math.cos(feature[4])*self.radius, self.position[1]+math.sin(feature[4])*self.radius)
             position = (640+(position[0]-pos[0])*1.1**zoom+offset[0],360+(position[1]-pos[1])*1.1**zoom+offset[1])
             pygame.draw.circle(screen, (255,128,128), position, 5)

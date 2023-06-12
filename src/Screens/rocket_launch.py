@@ -60,6 +60,14 @@ class RocketLaunchScreen:
             self.dialogue_state += 1
             self.dialogue_time = self.timeActive
 
+        if self.dialogue_state == 7 and world.rockets[world.selected_rocket].get_altitude(world.planets[1]) <= 3000:
+            self.dialogue_state += 1
+            self.dialogue_time = self.timeActive
+        
+        if self.dialogue_state == 8 and world.rockets[world.selected_rocket].get_altitude(world.planets[1]) <= 300:
+            self.dialogue_state += 1
+            self.dialogue_time = self.timeActive
+
         if self.dialogue_state == 1 and self.timeActive-self.dialogue_time < 600:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
             self.surface.blit(assets['president_dialogue'], (145,605))
@@ -94,6 +102,16 @@ class RocketLaunchScreen:
             pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
             self.surface.blit(assets['president_dialogue'], (145,605))
             self.surface.blit(self.render_scroll(self.text[6], self.timeActive-self.dialogue_time), (250,600))
+        
+        if self.dialogue_state == 8 and self.timeActive-self.dialogue_time < 600:
+            pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
+            self.surface.blit(assets['soviet_dialogue'], (145,605))
+            self.surface.blit(self.render_scroll(self.text[7], self.timeActive-self.dialogue_time), (250,600))
+        
+        if self.dialogue_state == 9 and self.timeActive-self.dialogue_time < 600:
+            pygame.draw.rect(self.surface, (0,0,0), (140,600,1000,110))
+            self.surface.blit(assets['president_dialogue'], (145,605))
+            self.surface.blit(self.render_scroll(self.text[8], self.timeActive-self.dialogue_time), (250,600))
 
     def render_scroll(self, texts, scroll):
         height = 20
@@ -170,6 +188,9 @@ class RocketLaunchScreen:
 
             if world.time_step == 1/60:
                 rocket = world.rockets[world.selected_rocket]
+                for part in world.grid.get_active_parts():
+                    if isinstance(part, Engine):
+                        part.firing = False
                 if inputManager.keys[pygame.K_w]:
                     if rocket.get_fuel() > 0:
                         for part in world.grid.get_active_parts():

@@ -84,15 +84,15 @@ class Box:
             self.angle += self.angular_velocity*dt
 
     def render(self, screen, camera, time_active):
-        surface = pygame.Surface(self.size, pygame.SRCALPHA)
+        surface = pygame.Surface((self.size[0]+30, self.size[1]+30), pygame.SRCALPHA)
         surface.blit(self.grid.render_launch(math.floor((time_active/15)%10)), (0,0))
         
         rotated_image = pygame.transform.rotate(surface, -self.angle)
         screen.blit(rotated_image, (self.position[0]-camera.left-rotated_image.get_width()/2,self.position[1]-camera.top-rotated_image.get_height()/2))
         
-        for point in self.rotate_points(self.angle):
-           pygame.draw.rect(screen, (0,0,255), (point[0]-2-camera.left,point[1]-2-camera.top,4,4))
-        pygame.draw.line(screen, (0,255,0), (self.position[0]-camera.left, self.position[1]-camera.top), (self.position[0]-camera.left-50*math.sin(self.angle*math.pi/180), self.position[1]-camera.top+50*math.cos(self.angle*math.pi/180)))
+        # for point in self.rotate_points(self.angle):
+        #    pygame.draw.rect(screen, (0,0,255), (point[0]-2-camera.left,point[1]-2-camera.top,4,4))
+        # pygame.draw.line(screen, (0,255,0), (self.position[0]-camera.left, self.position[1]-camera.top), (self.position[0]-camera.left-50*math.sin(self.angle*math.pi/180), self.position[1]-camera.top+50*math.cos(self.angle*math.pi/180)))
 
     def rotate_points(self, angle):
         angle_rads = angle*math.pi/180

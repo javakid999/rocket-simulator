@@ -2,6 +2,7 @@ import pygame, math
 from box import Box
 from button import Button
 from grid import Grid
+from part import Capsule, CheeseMachine
 
 class BuildScreen:
     def __init__(self, assets):
@@ -53,6 +54,18 @@ class BuildScreen:
             pygame.draw.rect(self.surface, color, (10, 485+i*35, 150, 30))
             self.surface.blit(self.font.render('Stage ' + str(i+1), True, (255,255,255)), (10, 485+i*35))
 
+        self.capsules = 0
+        self.cheese_machines = 0
+        for part in world.grid.parts:
+            if isinstance(part, Capsule): self.capsules += 1
+            if isinstance(part, CheeseMachine): self.cheese_machines += 1
+        color = (255,0,0)
+        if self.capsules > 0: color = (0,255,0)
+        self.surface.blit(self.font.render(str(self.capsules)+' / 1 Capsules', True, color), (20, 20))
+        color = (255,0,0)
+        if self.cheese_machines > 1: color = (0,255,0)
+        self.surface.blit(self.font.render(str(self.cheese_machines)+' / 2 Cheese Machines', True, color), (20, 40))
+
         for item in self.ui:
             item.render(self.surface, input_manager.mouse_pos)
 
@@ -92,7 +105,7 @@ class BuildScreen:
 
         for item in self.ui:
             if item.update(pos):
-                if item.id == 'launch':
+                if item.id == 'launch' and self.cheese_machines > 1 and self.capsules > 0:
                     for grid in game.world.grid.separate_parts():
                         game.world.rockets.append(Box(grid, [700+grid.position[0]*15,250+grid.position[1]*15], [grid.size[0]*15, grid.size[1]*15], 1, 0, 0))
                     game.mode = 1

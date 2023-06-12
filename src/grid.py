@@ -4,7 +4,7 @@ import pygame
 from part import Capsule, CheeseMachine, Engine, FuelTank, Separator
 
 class Grid:
-    def __init__(self):
+    def __init__(self, flames):
         self.size = (10,25)
         self.position = (0,0)
         self.selected_type = 0
@@ -17,6 +17,8 @@ class Grid:
         self.fuel_capacity = 0.1
         self.fuel = 0.1
 
+        self.flames = flames
+        
     def add_parts(self, parts):
         for part in parts:
             self.parts.append(part)
@@ -109,11 +111,20 @@ class Grid:
             parts_add = []
             for i in group:
                 parts_add.append(self.parts[i-1])
-            grid = Grid()
+            grid = Grid(self.flames)
             grid.add_parts(parts_add)
             grid.convert_to_launch()
+            stages = []
+            print(group)
+            print(self.stages)
+            for i in range(len(self.stages)):
+                stages.append([])
+                for num in self.stages[i]:
+                    if (num+1) in group:
+                        stages[i].append(num)
+            grid.stages = stages
+            print(stages)
             grids.append(grid)
-        
         return grids
 
     def flood_fill(self, parts, group, x, y, depth = 0):
@@ -130,12 +141,21 @@ class Grid:
             return group
 
     def render_launch(self, frame):
-        surface = pygame.Surface((self.size[0]*50, self.size[1]*50), pygame.SRCALPHA)
+        surface = pygame.Surface((self.size[0]*50+100, self.size[1]*50+100), pygame.SRCALPHA)
 
         for part in self.parts:
-            part.render(surface, [0,0], frame)
+            part.render(surface, [50,50], frame)
+            if isinstance(part, Engine) and part.firing and part.activated:
+                flame_surface = pygame.Surface((50,50), pygame.SRCALPHA)
+                position = (part.position[0]*50 - math.sin(part.rotation*math.pi/2)*50+50, part.position[1]*50 + math.cos(part.rotation*math.pi/2)*50+50)
+                if part.consumption > 1:
+                    flame_surface.blit(self.flames[frame], (0,0))
+                else:
+                    flame_surface.blit(self.flames[frame+10], (0,0))
+                flame_surface = pygame.transform.rotate(flame_surface, -part.rotation*90+180)
+                surface.blit(flame_surface, position)
 
-        return pygame.transform.scale(surface, (15*self.size[0], 15*self.size[1]))
+        return pygame.transform.scale(surface, (15*self.size[0]+30, 15*self.size[1]+30))
     
     def update_fuel(self):
         for part in self.parts:
@@ -167,10 +187,10 @@ class Grid:
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             
             if type == 1:
-                self.parts.append(Engine(position, rotation, assets['engine_strong'], 1.4, 40000))
+                self.parts.append(Engine(position, rotation, assets['engine_strong'], self.flames, 1.4, 40000))
 
             if type == 2:
-                self.parts.append(Engine(position, rotation, assets['engine_weak'], 0.5, 20000))
+                self.parts.append(Engine(position, rotation, assets['engine_weak'], self.flames, 0.5, 20000))
                 
             if type == 3:
                 self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))

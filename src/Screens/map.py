@@ -43,7 +43,7 @@ class MapScreen:
                 game.mode = 1
             if inputManager.key_press['x']:
                 world.save_state()
-            if not world.in_planet_atmosphere(world.planets[0]):
+            if not world.rockets[world.selected_rocket].in_planet_atmosphere(world.planets[0]):
                 if inputManager.key_press['+']:
                     world.time_step_increase()
                 if inputManager.key_press['-']:
@@ -51,14 +51,17 @@ class MapScreen:
             else:
                 world.time_step = 1/60
 
-            world.update([])
+            forces = []
+            for rocket in world.rockets:
+                forces.append([])
+            world.update(forces)
 
             for item in self.ui:
                 pass
 
-        tw = world.get_thrust() / world.get_gravitational_force()
-        self.surface.blit(self.font.render('Altitude: ' + str(math.floor(world.rockets[world.selected_rocket].get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Time Step: ' + str(round(world.time_step, 2)), False, (255,255,255)), (0,0))
-
+        tw = world.rockets[world.selected_rocket].get_thrust() / world.rockets[world.selected_rocket].get_gravitational_force(world.planets)
+        self.surface.blit(self.font.render('Earth Altitude: ' + str(math.floor(world.rockets[world.selected_rocket].get_altitude(world.planets[0]))) + 'm      ' + 'Thrust/Weight: ' + str(round(tw, 2)) + '      Speed: ' + str(round(world.time_step*60, 2)) + '      Fuel: ' + str(max(round(world.rockets[world.selected_rocket].get_fuel()*100, 2),0)) + '%', False, (255,255,255)), (0,0))
+        
         if inputManager.key_press['c']:
             self.quicksave_menu = not self.quicksave_menu
 
