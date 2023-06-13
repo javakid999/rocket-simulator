@@ -50,11 +50,23 @@ class Grid:
 
         screen.blit(surface, (280,0))
 
+    def stop_firing(self):
+        for i in range(len(self.parts)):
+            if isinstance(self.parts[i], Engine): self.parts[i].firing = False
+
     def stage(self):
         if self.active_stage == len(self.stages)-1: return
         self.active_stage += 1
+        self.stop_firing()
+        parts_remove = []
         for i in range(len(self.stages[self.active_stage])):
             self.parts[self.stages[self.active_stage][i]].activated = not self.parts[self.stages[self.active_stage][i]].activated
+            if isinstance(self.parts[self.stages[self.active_stage][i]], Separator):
+                parts_remove.append(self.parts[self.stages[self.active_stage][i]])
+        for part in parts_remove:
+            self.parts.remove(part)
+
+        return self.separate_parts()
 
     def get_active_parts(self):
         active_parts = []
@@ -121,6 +133,7 @@ class Grid:
                     if (num+1) in group:
                         stages[i].append(num)
             grid.stages = stages
+            grid.active_stage = self.active_stage
             grids.append(grid)
         return grids
 
@@ -145,7 +158,7 @@ class Grid:
             if isinstance(part, Engine) and part.firing and part.activated:
                 flame_surface = pygame.Surface((50,50), pygame.SRCALPHA)
                 position = (part.position[0]*50 - math.sin(part.rotation*math.pi/2)*50+50, part.position[1]*50 + math.cos(part.rotation*math.pi/2)*50+50)
-                if part.consumption > 1:
+                if part.consumption > 0.5:
                     flame_surface.blit(self.flames[frame], (0,0))
                 else:
                     flame_surface.blit(self.flames[frame+10], (0,0))
@@ -154,6 +167,13 @@ class Grid:
 
         return pygame.transform.scale(surface, (15*self.size[0]+30, 15*self.size[1]+30))
     
+    def engine_active(self):
+        for part in self.parts:
+            if isinstance(part, Engine):
+                if part.activated and part.firing:
+                    return True
+        return False
+
     def update_fuel(self):
         for part in self.parts:
             if isinstance(part, Engine):
@@ -184,10 +204,10 @@ class Grid:
         if 0 <= position[0] < self.size[0] and 0 <= position[1] < self.size[1]:
             
             if type == 1:
-                self.parts.append(Engine(position, rotation, assets['engine_strong'], self.flames, 1.4, 40000))
+                self.parts.append(Engine(position, rotation, assets['engine_strong'], self.flames, 0.6, 40000))
 
             if type == 2:
-                self.parts.append(Engine(position, rotation, assets['engine_weak'], self.flames, 0.5, 20000))
+                self.parts.append(Engine(position, rotation, assets['engine_weak'], self.flames, 0.2, 20000))
                 
             if type == 3:
                 self.parts.append(FuelTank(position, rotation, assets['fuel_tank'], 1))

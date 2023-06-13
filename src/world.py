@@ -22,15 +22,14 @@ class World:
         self.time_step = 1/60
         self.zoom = 0.1
 
-    def add_planet(self, position, radius, textures, mass, sea_level, map_color, static=True, velocity=[0,0]):
-        planet = Planet(position, radius, textures, mass, sea_level, self.planet_counter, map_color, static, velocity)
+    def add_planet(self, position, radius, textures, mass, object_height, sea_level, map_color, static=True, velocity=[0,0]):
+        planet = Planet(position, radius, textures, mass, object_height, sea_level, self.planet_counter, map_color, static, velocity)
         self.planet_counter += 1
         self.planets.append(planet)
 
     def generate_world(self):
         for planet in self.planets:
             planet.get_points(2)
-        self.save_state('Launch')
 
     def time_step_increase(self):
         if self.time_step == 1/60:
@@ -65,10 +64,10 @@ class World:
         with open('./src/Saves/save_states/'+filename+'.json', 'w') as outfile:
             json.dump(state, outfile)
         self.save_state_counter += 1
-        
 
     def load_state(self, name):
         state = json.load(open('./src/Saves/save_states/'+name+'.json'))
+        if len(state['rocket']) != len(self.rockets): return
         for i in range(len(self.rockets)):
             self.rockets[i].position = state['rocket'][i]['position']
             self.rockets[i].angle = state['rocket'][i]['angle']
@@ -137,8 +136,6 @@ class World:
         rocket_points = []
         path_length = 200
 
-        
-            
         for rocket in self.rockets:
             rocket_positions.append([*rocket.position])
             rocket_velocities.append([*rocket.linear_velocity])
@@ -178,7 +175,7 @@ class World:
 
                 planet_points[j].append([640+(planet_positions[j][0]-pos[0])*1.1**zoom+offset[0], 360+(planet_positions[j][1]-pos[1])*1.1**zoom+offset[1]])
 
-        #recalculate positions for different fucking timestep
+        #recalculate positions for different **** timestep
         for k in range(len(rocket_positions)):
             planet_positions = []
             planet_velocities = []

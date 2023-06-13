@@ -3,13 +3,14 @@ import pygame, math, json, os
 from perlin import PerlinNoise
 
 class Planet:
-    def __init__(self, position, radius, textures, mass, sea_level, planet_id, map_color, static = True, velocity = [0,0]):
+    def __init__(self, position, radius, textures, mass, object_height, sea_level, planet_id, map_color, static = True, velocity = [0,0]):
         self.id = planet_id
         self.position = position
         self.linear_velocity = velocity
         self.radius = radius
         self.textures = textures
         self.mass = mass
+        self.object_height = object_height
         self.static = static
         self.map_color = map_color
         self.sea_level = sea_level
@@ -135,12 +136,12 @@ class Planet:
             start_index = int(min(angles)/(math.pi*2)*len(self.points))%len(self.points)
             end_index = int(max(angles)/(math.pi*2)*len(self.points))%len(self.points)
 
-            for i in range(start_index, end_index, 1):
+            for i in range(start_index-1, end_index+1, 1):
                 angle = 2*math.pi*((i)/len(self.points))
                 position = [self.position[0]-rect.left+(self.radius+100*self.points[i])*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i])*math.sin(angle)]
                 position_water = [self.position[0]-rect.left+(self.radius+100*self.sea_level)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.sea_level)*math.sin(angle)]
 
-                object_position = [self.position[0]-rect.left+(self.radius+100*self.points[i]+self.radius/21233)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i]+self.radius/21233)*math.sin(angle)]
+                object_position = [self.position[0]-rect.left+(self.radius+100*self.points[i]+self.object_height)*math.cos(angle),self.position[1]-rect.top+(self.radius+100*self.points[i]+self.object_height)*math.sin(angle)]
                 if self.objects[i]['bush'][0] and self.textures['leaf'] != -1:
                     screen.blit(pygame.transform.rotate(self.textures['leaf'][self.objects[i]['bush'][1]], self.objects[i]['rotation']), object_position)
                 if self.objects[i]['rock'][0] and self.textures['rock'] != -1:

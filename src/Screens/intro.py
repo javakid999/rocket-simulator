@@ -7,7 +7,7 @@ from statemachine import StateMachine
 class IntroScreen:
     def __init__(self, assets):
         self.menuState = StateMachine()
-        self.menuState.addState('1', ['2'], True)
+        self.menuState.addState('1', ['2', '4'], True)
         self.menuState.addState('2', ['3'])
         self.menuState.addState('3', ['4'])
         self.menuState.addState('4', ['1'])

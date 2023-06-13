@@ -179,6 +179,9 @@ class RocketLaunchScreen:
 
         world.render(self.surface, self.timeActive)
 
+        if world.rockets[world.selected_rocket].grid.engine_active():
+            game.soundManager.play_sound('engine', 0)
+
         if self.quicksave_menu:
             self.surface.blit(self.font.render('Load Quicksave:', True, (255,255,255)), (400, 100))
             saves = os.listdir('./src/Saves/save_states')
@@ -193,17 +196,17 @@ class RocketLaunchScreen:
 
             if world.time_step == 1/60:
                 rocket = world.rockets[world.selected_rocket]
-                for part in world.grid.get_active_parts():
+                for part in rocket.grid.get_active_parts():
                     if isinstance(part, Engine):
                         part.firing = False
                 if inputManager.keys[pygame.K_w]:
                     if rocket.get_fuel() > 0:
-                        for part in world.grid.get_active_parts():
+                        for part in rocket.grid.get_active_parts():
                             if isinstance(part, Engine):
                                 if part.activated:
                                     part.firing = True
                                     forces[world.selected_rocket].append([(0,0),(part.force*math.sin(rocket.angle*math.pi/180+part.rotation*math.pi/2),-part.force*math.cos(rocket.angle*math.pi/180+part.rotation*math.pi/2))])
-                        #rocket.grid.update_fuel()
+                        rocket.grid.update_fuel()
                 if inputManager.keys[pygame.K_a]:
                     forces[world.selected_rocket].append([(0,1000),(-1000,0)])
                     forces[world.selected_rocket].append([(0,-1000),(1000,0)])
@@ -216,9 +219,34 @@ class RocketLaunchScreen:
             if inputManager.key_press['m']:
                 game.mode = 2
             if inputManager.key_press[' ']:
-                world.rockets[world.selected_rocket].grid.stage()
+                position = world.rockets[world.selected_rocket].position
+                linear_velocity = world.rockets[world.selected_rocket].linear_velocity
+                angle = world.rockets[world.selected_rocket].angle
+                angular_velocity = world.rockets[world.selected_rocket].angular_velocity
+
+                grids = world.rockets[world.selected_rocket].grid.stage()
+                if grids != None and len(grids) > 1:
+                    world.rockets.remove(world.rockets[world.selected_rocket])
+                    for grid in grids:
+                        box = Box(grid, [position[0]+grid.position[0]*15-15,position[1]+grid.position[1]*15-15], [grid.size[0]*15, grid.size[1]*15], 1, 0, 0)
+                        box.linear_velocity = [*linear_velocity]
+                        box.angle = angle
+                        box.angular_velocity = angular_velocity
+                        world.rockets.append(box)
             if inputManager.key_press['x']:
                 world.save_state()
+            if inputManager.key_press['<']:
+                world.rockets[world.selected_rocket].grid.stop_firing()
+                if world.selected_rocket == 0:
+                    world.selected_rocket = len(world.rockets)-1
+                else:
+                    world.selected_rocket -= 1
+            if inputManager.key_press['>']:
+                world.rockets[world.selected_rocket].grid.stop_firing()
+                if world.selected_rocket == len(world.rockets)-1:
+                    world.selected_rocket = 0
+                else:
+                    world.selected_rocket += 1
             if not world.rockets[world.selected_rocket].in_planet_atmosphere(world.planets[0]):
                 if inputManager.key_press['+']:
                     world.time_step_increase()

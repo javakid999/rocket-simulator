@@ -17,7 +17,9 @@ class InputManager:
             '-': False,
             'r': False,
             'c': False,
-            ' ': False
+            ' ': False,
+            '<': False,
+            '>': False
         }
 
     def loadInput(self):
@@ -42,7 +44,7 @@ class InputManager:
             'z': self.keys[pygame.K_z], 'm': self.keys[pygame.K_m],
             '+': self.keys[pygame.K_EQUALS], '-': self.keys[pygame.K_MINUS],
             'r': self.keys[pygame.K_r], 'x': self.keys[pygame.K_x], 'c': self.keys[pygame.K_c], 
-            ' ': self.keys[pygame.K_SPACE]
+            ' ': self.keys[pygame.K_SPACE], '<': self.keys[pygame.K_LEFT], '>': self.keys[pygame.K_RIGHT]
         }
         self.keys = pygame.key.get_pressed()
 
@@ -86,7 +88,18 @@ class InputManager:
         else:
             self.key_press[' '] = False   
 
+        if self.keys[pygame.K_LEFT] and not keys_prev['<']:
+            self.key_press['<'] = True
+        else:
+            self.key_press['<'] = False
+
+        if self.keys[pygame.K_RIGHT] and not keys_prev['>']:
+            self.key_press['>'] = True
+        else:
+            self.key_press['>'] = False   
+
     def click_event(self, game):
+        game.soundManager.play_sound('click', 0)
         if game.mode == 0:
             game.renderer.screens['mainmenu'].update_ui(self.mouse_pos, game)
         elif game.mode == 1:

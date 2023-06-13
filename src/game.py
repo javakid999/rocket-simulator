@@ -41,11 +41,11 @@ class Game:
         water_texture = self.assetManager.generateTiledTexture('water', (1312,752))
         moon_texture = self.assetManager.generateTiledTexture('moon', (1312,752))
         moon_water_texture = self.assetManager.generateTiledTexture('cheese_water', (1312,752))
-        self.world.add_planet([700,637300], 637000, {'land': planet_texture, 'water': water_texture, 'frog': self.assetManager.assets['frog'], 'leaf': [self.assetManager.assets['leaf1'], self.assetManager.assets['leaf2']], 'rock': [self.assetManager.assets['rock1'], self.assetManager.assets['rock2'], self.assetManager.assets['rock3'], self.assetManager.assets['rock4']]}, 5.97*10**21, 0.08, (128,128,255), True)
+        self.world.add_planet([700,637300], 637000, {'land': planet_texture, 'water': water_texture, 'frog': self.assetManager.assets['frog'], 'leaf': [self.assetManager.assets['leaf1'], self.assetManager.assets['leaf2']], 'rock': [self.assetManager.assets['rock1'], self.assetManager.assets['rock2'], self.assetManager.assets['rock3'], self.assetManager.assets['rock4']]}, 5.97*10**21, 30, 0.08, (128,128,255), True)
         self.world.planets[0].add_atmosphere(pygame.Color(128,128,255), 10000)
         self.world.planets[0].add_feature('Launchpad', 150063, [0.1]*52)
         self.world.planets[0].add_feature('Ocean of Nav', 130000, [-6]*400)
-        self.world.add_planet([700,4636040], 173740, {'land': moon_texture, 'water': moon_water_texture, 'frog': -1, 'leaf': -1, 'rock': [self.assetManager.assets['rock1'], self.assetManager.assets['rock2'], self.assetManager.assets['rock3'], self.assetManager.assets['rock4']]}, 7.348*10**19, 0.08, (200,200,200), False, [1000,0])
+        self.world.add_planet([700,4636040], 173740, {'land': moon_texture, 'water': moon_water_texture, 'frog': -1, 'leaf': -1, 'rock': [self.assetManager.assets['rock1'], self.assetManager.assets['rock2'], self.assetManager.assets['rock3'], self.assetManager.assets['rock4']]}, 7.348*10**19, -30, 0.08, (200,200,200), False, [1000,0])
         self.world.planets[1].add_feature('Arnavian Crater', 12000, [-6]*40)
 
         self.world.generate_world()

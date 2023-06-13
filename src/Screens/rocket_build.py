@@ -105,7 +105,7 @@ class BuildScreen:
 
         for item in self.ui:
             if item.update(pos):
-                if item.id == 'launch' and self.cheese_machines > 1 and self.capsules > 0:
+                if item.id == 'launch' and self.cheese_machines > 1 and self.capsules > 0 and len(game.world.grid.parts) > 0:
                     for grid in game.world.grid.separate_parts():
                         game.world.rockets.append(Box(grid, [700+grid.position[0]*15,250+grid.position[1]*15], [grid.size[0]*15, grid.size[1]*15], 1, 0, 0))
                     game.mode = 1

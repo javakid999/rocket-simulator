@@ -26,8 +26,8 @@ class Box:
     def update(self, world, forces):
         self.size = [self.grid.size[0]*15, self.grid.size[1]*15]
         mass = 0
-        for i in range(len(world.grid.parts)):
-            mass += world.grid.parts[i].mass
+        for i in range(len(self.grid.parts)):
+            mass += self.grid.parts[i].mass
         self.mass = mass
         self.moment_of_inertia = 1/12*self.mass*(self.size[0]*self.size[0]+self.size[1]*self.size[1])
 
