@@ -1,20 +1,28 @@
-Rocket yass queen
+# I Shot for the Moon and Hit Cheese
+Multistage rocket simulator that I created for an AP Phyiscs 1 project
 
-This is currently build 2 of the rocket game that I have been working on for a physics project. I
-thought I would be rid of the curse of working on this after we presented it, but apparently this is an "artifact of learning", which bugs me because the game is 
-very broken in its current state, so I may continue to work on it.
+PLOT: You are an 
 
-List of known issues:
-* Planets do not render very well
-* The game should be using a relative coordinate system
+## Features
+* Storyline with a plot and multiple characters
+* Completely custom rocket creator with fuel and engine parts and staging capabilities
+* Physics accurate rocket simulator with multiple graviational bodies and map of trajectories
+
+## Screenshots
+(images/gifs here)
+
+## Architecture
+Engine is a self made bare-bones game loop that supports multiple scenes, sprites, animations, peripheral input, state machines for simple AI, and particle effects
+
+## Installation
+Simply download the build and run the exe file.
+
+## Future Improvements
+* Correct impulse-based physics solver that can support a lot of moving parts
+* Flood fill algorithm for fuel tanks to accurately connect parts to engines
+* Port the engine to something with opengl to increase performance significantly
+
+## List of known issues:
 * FPS drops to like 5 when you go to the side of a planet
-* Fuel tanks should use a flood fill algorithm
 * You can't burn from the map screen
 * No saving and loading zia rocket :(
-
-Before deploying:
-* Set mode back to main menu
-* Fix fuel depletion
-* Fix required parts
-* Change Volume
-* Make sure dialogue cues are set
