@@ -9,7 +9,7 @@ PLOT: You are an
 * Physics accurate rocket simulator with multiple graviational bodies and map of trajectories
 
 ## Screenshots
-(images/gifs here)
+[screenshot 0](./src/Screenshots/screenshot_0.png)
 
 ## Architecture
 Engine is a self made bare-bones game loop that supports multiple scenes, sprites, animations, peripheral input, state machines for simple AI, and particle effects
